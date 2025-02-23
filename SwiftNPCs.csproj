@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+	<LangVersion>12.0</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>$(SCPSLREFERENCES)\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(SCPSLREFERENCES)\Assembly-CSharp-Publicized.dll</HintPath>
+    </Reference>
+    <Reference Include="CommandSystem.Core">
+      <HintPath>$(SCPSLREFERENCES)\CommandSystem.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="LabApi">
+      <HintPath>$(SCPSLREFERENCES)\LabApi.dll</HintPath>
+    </Reference>
+    <Reference Include="Mirror">
+      <HintPath>$(SCPSLREFERENCES)\Mirror-Publicized.dll</HintPath>
+    </Reference>
+    <Reference Include="Pooling">
+      <HintPath>$(SCPSLREFERENCES)\Pooling.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>$(SCPSLREFERENCES)\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AIModule">
+      <HintPath>$(SCPSLREFERENCES)\UnityEngine.AIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(SCPSLREFERENCES)\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>$(SCPSLREFERENCES)\UnityEngine.PhysicsModule.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
