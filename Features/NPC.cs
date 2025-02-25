@@ -26,6 +26,7 @@ namespace SwiftNPCs.Features
             NetworkServer.AddPlayerForConnection(Connection, playerBody);
             Player.TryGet(playerBody, out WrapperPlayer);
             Core = playerBody.AddComponent<NPCCore>();
+            Core.Setup(this);
             NPCManager.AllNPCs.Add(this);
             PlayerEvents.Death += OnDeath;
             WrapperPlayer.DisplayName = "Bot " + WrapperPlayer.PlayerId;
