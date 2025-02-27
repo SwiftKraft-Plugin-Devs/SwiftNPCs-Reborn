@@ -2,7 +2,7 @@
 {
     public abstract class NPCComponent
     {
-        public NPCCore Core { get; set; };
+        public NPCCore Core { get; set; }
 
         public abstract void Begin();
         public abstract void Tick();

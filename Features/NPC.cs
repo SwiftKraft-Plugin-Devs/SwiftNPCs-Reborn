@@ -19,20 +19,19 @@ namespace SwiftNPCs.Features
 
         public bool Respawnable;
 
-        public NPC(Vector3 position) : base()
+        public NPC(Vector3 position, RoleTypeId role = RoleTypeId.Spectator, RoleSpawnFlags spawnFlags = RoleSpawnFlags.AssignInventory) : base()
         {
             GameObject playerBody = Object.Instantiate(NetworkManager.singleton.playerPrefab, position, Quaternion.identity);
             Connection = new();
             NetworkServer.AddPlayerForConnection(Connection, playerBody);
             Player.TryGet(playerBody, out WrapperPlayer);
-            Core = playerBody.AddComponent<NPCCore>();
-            Core.Setup(this);
             NPCManager.AllNPCs.Add(this);
             PlayerEvents.Death += OnDeath;
             WrapperPlayer.DisplayName = "Bot " + WrapperPlayer.PlayerId;
+            WrapperPlayer.SetRole(role, RoleChangeReason.LateJoin, spawnFlags);
+            Core = playerBody.AddComponent<NPCCore>();
+            Core.Setup(this);
         }
-
-        public NPC(Vector3 position, RoleTypeId role, RoleSpawnFlags spawnFlags = RoleSpawnFlags.AssignInventory) : this(position) => WrapperPlayer.SetRole(role, RoleChangeReason.LateJoin, spawnFlags);
 
         public virtual void Destroy()
         {

@@ -1,6 +1,7 @@
 ﻿using PlayerRoles;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace SwiftNPCs
 {
@@ -20,6 +21,12 @@ namespace SwiftNPCs
         {
             roleType = GetRoleFromString(roleName);
             return roleType != RoleTypeId.None;
+        }
+
+        public static void InvokePrivate<T>(this T obj, string methodName, params object[] parameters)
+        {
+            MethodInfo method = obj.GetType().GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance);
+            method.Invoke(obj, parameters);
         }
     }
 }

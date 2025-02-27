@@ -5,15 +5,7 @@ namespace SwiftNPCs.Features
 {
     public class NPCMotor : NPCComponent
     {
-        public Vector3 WishMoveDirection
-        {
-            get => Motor != null ? Motor.MoveDirection : Vector3.zero;
-            set
-            {
-                if (Motor != null)
-                    Motor.MoveDirection = value;
-            }
-        }
+        public Vector3 WishMoveDirection { get; set; }
 
         public Quaternion WishLookRotation { get; set; }
 
@@ -31,13 +23,15 @@ namespace SwiftNPCs.Features
 
         public Quaternion CurrentLookRotation { get; protected set; }
 
+        public bool WishJump { get => Motor.WantsToJump; set => Motor.WantsToJump = value; }
+
         public IFpcRole Role { get; protected set; }
 
         public FpcMotor Motor { get; protected set; }
 
         public override void Begin()
         {
-            if (Core.NPC.WrapperPlayer.RoleBase is IFpcRole role)
+            if (Core.NPC.ReferenceHub.roleManager.CurrentRole is IFpcRole role)
             {
                 Role = role;
                 Motor = role.FpcModule.Motor;
@@ -46,7 +40,8 @@ namespace SwiftNPCs.Features
 
         public override void Tick()
         {
-            WishMoveDirection = Core.transform.forward;
+            WishMoveDirection = Vector3.back;
+            WishJump = true;
         }
     }
 }
