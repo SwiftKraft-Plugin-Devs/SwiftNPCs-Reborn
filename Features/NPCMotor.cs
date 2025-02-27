@@ -1,4 +1,5 @@
 ﻿using PlayerRoles.FirstPersonControl;
+using System.Data;
 using UnityEngine;
 
 namespace SwiftNPCs.Features
@@ -29,19 +30,30 @@ namespace SwiftNPCs.Features
 
         public FpcMotor Motor { get; protected set; }
 
+        public CharacterController CharacterController { get; protected set; }
+
         public override void Begin()
         {
             if (Core.NPC.ReferenceHub.roleManager.CurrentRole is IFpcRole role)
             {
                 Role = role;
                 Motor = role.FpcModule.Motor;
+                CharacterController = role.FpcModule.CharController;
             }
         }
 
         public override void Tick()
         {
-            WishMoveDirection = Vector3.back;
-            WishJump = true;
+            if (Motor == null)
+                return;
+
+            Move();
+        }
+
+        public virtual void Move()
+        {
+            CharacterController.Move(WishMoveDirection * (Time.fixedDeltaTime * Role.FpcModule.MaxMovementSpeed));
+            Role.FpcModule.IsGrounded = CharacterController.isGrounded;
         }
     }
 }
