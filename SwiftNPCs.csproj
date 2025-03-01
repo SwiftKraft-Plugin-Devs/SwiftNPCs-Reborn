@@ -38,6 +38,16 @@
     <Reference Include="UnityEngine.PhysicsModule">
       <HintPath>$(SCPSLREFERENCES)\UnityEngine.PhysicsModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.TerrainModule">
+      <HintPath>$(SCPSLREFERENCES)\UnityEngine.TerrainModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TerrainPhysicsModule">
+      <HintPath>$(SCPSLREFERENCES)\UnityEngine.TerrainPhysicsModule.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="NavMesh\" />
   </ItemGroup>
 
 </Project>
