@@ -1,6 +1,8 @@
-﻿using LabApi.Features.Wrappers;
+﻿using LabApi.Features.Console;
+using LabApi.Features.Wrappers;
 using UnityEngine;
 using UnityEngine.AI;
+using Logger = LabApi.Features.Console.Logger;
 
 namespace SwiftNPCs.Features
 {
@@ -34,6 +36,8 @@ namespace SwiftNPCs.Features
         public override void Tick()
         {
             Destination = Player.Get(2).Position;
+
+            Logger.Info("Destination: " + Destination + ", path corners: " + Path.CurrentPath.corners.Length + ", current: " + Path.Current);
 
             repathTimer -= Time.fixedDeltaTime;
             if (repathTimer <= 0f)

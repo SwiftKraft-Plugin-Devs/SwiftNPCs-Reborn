@@ -1,5 +1,4 @@
 ﻿using LabApi.Events.Arguments.PlayerEvents;
-using LabApi.Events.Arguments.ServerEvents;
 using LabApi.Events.Handlers;
 using LabApi.Features;
 using LabApi.Loader.Features.Plugins;
@@ -11,6 +10,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using Logger = LabApi.Features.Console.Logger;
+using Object = UnityEngine.Object;
 
 namespace SwiftNPCs
 {
@@ -36,15 +36,20 @@ namespace SwiftNPCs
 
         public override LoadPriority Priority => LoadPriority.Highest;
 
-        public static NavMeshSurface NavMesh;
+        public static NavMeshSurface NavMesh = null;
 
         public override void Enable()
         {
             Instance = this;
             NPCParentCommand.SetPrompt();
 
-            ServerEvents.MapGenerated += OnMapGenerated;
+            ServerEvents.RoundStarted += RoundStarted;
             PlayerEvents.ShotWeapon += OnPlayerShotWeapon;
+        }
+
+        private void RoundStarted()
+        {
+            BuildNavMesh();
         }
 
         internal void OnPlayerShotWeapon(PlayerShotWeaponEventArgs ev)
@@ -58,14 +63,27 @@ namespace SwiftNPCs
             ev.Player.SendHint(text);
         }
 
-        private void OnMapGenerated(MapGeneratedEventArgs ev)
+        public static void BuildNavMesh()
         {
+            if (NavMesh != null)
+            {
+                NavMesh.RemoveData();
+                Object.Destroy(NavMesh.gameObject);
+            }
+
             NavMesh = new GameObject("NavMesh").AddComponent<NavMeshSurface>();
 
+            NavMeshBuildSettings settings = NavMesh.GetBuildSettings();
+            settings.agentClimb = 0.75f;
+            settings.agentHeight = 1.5f;
+            settings.agentSlope = 66f;
+            settings.agentRadius = 0.2f;
+            NavMesh.buildHeightMesh = true;
             NavMesh.useGeometry = NavMeshCollectGeometry.PhysicsColliders;
             NavMesh.collectObjects = CollectObjects.All;
-            NavMesh.buildHeightMesh = true;
             NavMesh.layerMask = NavMeshLayers;
+            NavMesh.overrideVoxelSize = true;
+            NavMesh.voxelSize = 0.05f;
             NavMesh.BuildNavMesh();
 
             Logger.Info("NavMesh Built! ");
@@ -77,7 +95,7 @@ namespace SwiftNPCs
                 e.Unsubscribe();
 
             NPCManager.RemoveAll();
-            ServerEvents.MapGenerated -= OnMapGenerated;
+            ServerEvents.RoundStarted -= RoundStarted;
             PlayerEvents.ShotWeapon -= OnPlayerShotWeapon;
         }
     }
