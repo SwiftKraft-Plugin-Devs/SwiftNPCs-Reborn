@@ -10,7 +10,16 @@ namespace SwiftNPCs.Features
 
         public readonly List<NPCComponent> Components = [];
 
+        public Vector3 Position => NPC.WrapperPlayer.Position;
+
         public NPCMotor Motor { get; private set; }
+        public NPCPathfinder Pathfinder { get; private set; }
+
+        protected virtual void Update()
+        {
+            foreach (NPCComponent component in Components)
+                component.Frame();
+        }
 
         protected virtual void FixedUpdate()
         {
@@ -22,6 +31,7 @@ namespace SwiftNPCs.Features
         {
             NPC = npc;
             Motor = AddNPCComponent<NPCMotor>();
+            Pathfinder = AddNPCComponent<NPCPathfinder>();
         }
 
         public T AddNPCComponent<T>() where T : NPCComponent, new()

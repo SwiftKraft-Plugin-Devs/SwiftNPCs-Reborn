@@ -1,5 +1,4 @@
 ﻿using PlayerRoles.FirstPersonControl;
-using System.Data;
 using UnityEngine;
 
 namespace SwiftNPCs.Features
@@ -13,7 +12,11 @@ namespace SwiftNPCs.Features
         public Vector3 WishLookDirection
         {
             get => WishLookRotation * Vector3.forward;
-            set => WishLookRotation = Quaternion.LookRotation(value.normalized);
+            set
+            {
+                if (value != default)
+                    WishLookRotation = Quaternion.LookRotation(value.normalized, Vector3.up);
+            }
         }
 
         public Vector3 WishLookPosition
@@ -29,8 +32,11 @@ namespace SwiftNPCs.Features
         public IFpcRole Role { get; protected set; }
 
         public FpcMotor Motor { get; protected set; }
+        public FpcMouseLook MouseLook { get; protected set; }
 
         public CharacterController CharacterController { get; protected set; }
+
+        public float LookSpeed = 400f;
 
         public override void Begin()
         {
@@ -38,6 +44,7 @@ namespace SwiftNPCs.Features
             {
                 Role = role;
                 Motor = role.FpcModule.Motor;
+                MouseLook = role.FpcModule.MouseLook;
                 CharacterController = role.FpcModule.CharController;
             }
         }
@@ -48,12 +55,22 @@ namespace SwiftNPCs.Features
                 return;
 
             Move();
+            Look();
         }
+
+        public override void Frame() => Look();
 
         public virtual void Move()
         {
             CharacterController.Move(WishMoveDirection * (Time.fixedDeltaTime * Role.FpcModule.MaxMovementSpeed));
             Role.FpcModule.IsGrounded = CharacterController.isGrounded;
+        }
+
+        public virtual void Look()
+        {
+            CurrentLookRotation = Quaternion.RotateTowards(CurrentLookRotation, WishLookRotation, LookSpeed * Time.fixedDeltaTime);
+            MouseLook.LookAtDirection(CurrentLookRotation * Vector3.forward);
+            Core.transform.rotation = CurrentLookRotation;
         }
     }
 }

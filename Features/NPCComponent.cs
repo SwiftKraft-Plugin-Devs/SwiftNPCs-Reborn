@@ -6,5 +6,6 @@
 
         public abstract void Begin();
         public abstract void Tick();
+        public virtual void Frame() { }
     }
 }
