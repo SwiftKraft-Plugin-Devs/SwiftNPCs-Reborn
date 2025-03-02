@@ -16,7 +16,7 @@ namespace SwiftNPCs
 {
     public class Core : Plugin
     {
-        public static LayerMask NavMeshLayers = LayerMask.GetMask("Default");
+        public static LayerMask NavMeshLayers = LayerMask.GetMask("Default", "");
 
         public static Version CurrentVersion = new(2, 0, 0, 0);
 
