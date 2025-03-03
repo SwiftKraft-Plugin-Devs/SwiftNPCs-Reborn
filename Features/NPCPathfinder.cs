@@ -1,4 +1,5 @@
 ﻿using LabApi.Features.Wrappers;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using Logger = LabApi.Features.Console.Logger;
@@ -16,13 +17,16 @@ namespace SwiftNPCs.Features
             get => _destination;
             set
             {
-                _destination = !NavMesh.SamplePosition(value, out NavMeshHit hit, 2f, NavMesh.AllAreas) ? value : hit.position;
-                Path.UpdatePath();
+                _realDestination = value;
+                _destination = !NavMesh.SamplePosition(value, out NavMeshHit hit, 10f, NavMesh.AllAreas) ? value : hit.position;
             }
         }
-        Vector3 _destination;
+        public Vector3 RealDestination => _realDestination;
 
-        public float RepathTimer = 1f;
+        Vector3 _destination;
+        Vector3 _realDestination;
+
+        public float RepathTimer = 0.3f;
         float repathTimer;
         public NPCPath Path { get; private set; }
 
@@ -37,7 +41,7 @@ namespace SwiftNPCs.Features
         {
             Destination = Player.Get(2).Position;
 
-            Logger.Info("Destination: " + Destination + ", path corners: " + Path.CurrentPath.corners.Length + ", current: " + Path.Current);
+             Logger.Info("Destination: " + Destination + ", path corners: " + Path.Waypoints.Count + ", current: " + Path.Current);
 
             repathTimer -= Time.fixedDeltaTime;
             if (repathTimer <= 0f)
@@ -59,11 +63,13 @@ namespace SwiftNPCs.Features
                 Motor.WishLookDirection = direction;
         }
 
-        public class NPCPath(NPCPathfinder parent, float waypointRadius = 1f)
+        public class NPCPath(NPCPathfinder parent, float waypointRadius = 1.5f)
         {
             public readonly NPCPathfinder Parent = parent;
 
             public readonly NavMeshPath CurrentPath = new();
+
+            public readonly List<Vector3> Waypoints = [];
 
             public float WaypointRadius = waypointRadius;
 
@@ -72,7 +78,7 @@ namespace SwiftNPCs.Features
             public int Current
             {
                 get => current;
-                private set => current = CurrentPath.corners.Length <= 0 ? 0 : Mathf.Clamp(value, 0, CurrentPath.corners.Length - 1);
+                private set => current = Waypoints.Count <= 0 ? 0 : Mathf.Clamp(value, 0, Waypoints.Count - 1);
             }
             private int current;
 
@@ -80,6 +86,9 @@ namespace SwiftNPCs.Features
             {
                 NavMesh.SamplePosition(Parent.Core.Position, out NavMeshHit hit, 2f, NavMesh.AllAreas);
                 NavMesh.CalculatePath(hit.position, Parent.Destination, NavMesh.AllAreas, CurrentPath);
+                Waypoints.Clear();
+                Waypoints.AddRange(CurrentPath.corners);
+                Waypoints.Add(Parent.RealDestination);
                 Current = 0;
                 Ended = false;
                 UpdateWaypoint();
@@ -90,7 +99,7 @@ namespace SwiftNPCs.Features
                 if (Ended)
                     return;
 
-                if (Current >= CurrentPath.corners.Length - 1)
+                if (Current >= Waypoints.Count - 1)
                 {
                     Ended = true;
                     return;
@@ -100,13 +109,10 @@ namespace SwiftNPCs.Features
                     Current++;
             }
 
-            public Vector3 GetCurrentWaypoint() => 
-                (CurrentPath.corners.Length - 1 <= Current 
-                && (Parent.Destination - Parent.Core.Position).sqrMagnitude 
-                    > WaypointRadius * WaypointRadius) 
-                || CurrentPath.corners.Length <= 0
-                    ? Parent.Destination
-                    : CurrentPath.corners[Current];
+            public Vector3 GetCurrentWaypoint() =>
+                Waypoints.Count <= 0
+                    ? Parent.RealDestination
+                    : Waypoints[Current];
         }
     }
 }

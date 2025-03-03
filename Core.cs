@@ -1,4 +1,5 @@
 ﻿using LabApi.Events.Arguments.PlayerEvents;
+using LabApi.Events.Arguments.ServerEvents;
 using LabApi.Events.Handlers;
 using LabApi.Features;
 using LabApi.Loader.Features.Plugins;
@@ -16,7 +17,7 @@ namespace SwiftNPCs
 {
     public class Core : Plugin
     {
-        public static LayerMask NavMeshLayers = LayerMask.GetMask("Default", "");
+        public static LayerMask NavMeshLayers = LayerMask.GetMask("Default", "InvisibleCollider");
 
         public static Version CurrentVersion = new(2, 0, 0, 0);
 
@@ -43,11 +44,11 @@ namespace SwiftNPCs
             Instance = this;
             NPCParentCommand.SetPrompt();
 
-            ServerEvents.RoundStarted += RoundStarted;
+            ServerEvents.MapGenerated += RoundStarted;
             PlayerEvents.ShotWeapon += OnPlayerShotWeapon;
         }
 
-        private void RoundStarted()
+        private void RoundStarted(MapGeneratedEventArgs ev)
         {
             BuildNavMesh();
         }
@@ -74,10 +75,10 @@ namespace SwiftNPCs
             NavMesh = new GameObject("NavMesh").AddComponent<NavMeshSurface>();
 
             NavMeshBuildSettings settings = NavMesh.GetBuildSettings();
-            settings.agentClimb = 0.75f;
+            settings.agentClimb = 0.25f;
             settings.agentHeight = 1.5f;
             settings.agentSlope = 66f;
-            settings.agentRadius = 0.2f;
+            settings.agentRadius = 0.1f;
             NavMesh.buildHeightMesh = true;
             NavMesh.useGeometry = NavMeshCollectGeometry.PhysicsColliders;
             NavMesh.collectObjects = CollectObjects.All;
@@ -95,7 +96,7 @@ namespace SwiftNPCs
                 e.Unsubscribe();
 
             NPCManager.RemoveAll();
-            ServerEvents.RoundStarted -= RoundStarted;
+            ServerEvents.MapGenerated -= RoundStarted;
             PlayerEvents.ShotWeapon -= OnPlayerShotWeapon;
         }
     }

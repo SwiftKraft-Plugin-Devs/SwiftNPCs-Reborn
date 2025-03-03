@@ -1,10 +1,14 @@
-﻿using PlayerRoles.FirstPersonControl;
+﻿using Interactables.Interobjects.DoorUtils;
+using LabApi.Features.Wrappers;
+using PlayerRoles.FirstPersonControl;
 using UnityEngine;
 
 namespace SwiftNPCs.Features
 {
     public class NPCMotor : NPCComponent
     {
+        public static LayerMask DoorCheckLayers = LayerMask.GetMask("Default", "Door");
+
         public Vector3 WishMoveDirection { get; set; }
 
         public Quaternion WishLookRotation { get; set; }
@@ -38,6 +42,8 @@ namespace SwiftNPCs.Features
 
         public float LookSpeed = 400f;
 
+        public bool CanOpenDoors = true;
+
         public override void Begin()
         {
             if (Core.NPC.ReferenceHub.roleManager.CurrentRole is IFpcRole role)
@@ -64,6 +70,9 @@ namespace SwiftNPCs.Features
         {
             CharacterController.Move(WishMoveDirection * (Time.fixedDeltaTime * Role.FpcModule.MaxMovementSpeed));
             Role.FpcModule.IsGrounded = CharacterController.isGrounded;
+
+            if (CanOpenDoors && Physics.Raycast(Core.Position, CurrentLookRotation * Vector3.forward, out RaycastHit _hit, 3.63f, DoorCheckLayers) && _hit.transform.gameObject.TryGetComponent(out DoorVariant door))
+                door.ServerInteract(Core.NPC.ReferenceHub, 0);
         }
 
         public virtual void Look()
