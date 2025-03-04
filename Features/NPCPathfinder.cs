@@ -41,7 +41,7 @@ namespace SwiftNPCs.Features
         {
             Destination = Player.Get(2).Position;
 
-             Logger.Info("Destination: " + Destination + ", path corners: " + Path.Waypoints.Count + ", current: " + Path.Current);
+            //Logger.Info("Destination: " + Destination + ", path corners: " + Path.Waypoints.Count + ", current: " + Path.Current);
 
             repathTimer -= Time.fixedDeltaTime;
             if (repathTimer <= 0f)

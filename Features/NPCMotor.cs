@@ -1,5 +1,5 @@
-﻿using Interactables.Interobjects.DoorUtils;
-using LabApi.Features.Wrappers;
+﻿using Interactables.Interobjects;
+using Interactables.Interobjects.DoorUtils;
 using PlayerRoles.FirstPersonControl;
 using UnityEngine;
 
@@ -7,7 +7,7 @@ namespace SwiftNPCs.Features
 {
     public class NPCMotor : NPCComponent
     {
-        public static LayerMask DoorCheckLayers = LayerMask.GetMask("Default", "Door");
+        public static LayerMask DoorCheckLayers = LayerMask.GetMask("Door");
 
         public Vector3 WishMoveDirection { get; set; }
 
@@ -70,9 +70,6 @@ namespace SwiftNPCs.Features
         {
             CharacterController.Move(WishMoveDirection * (Time.fixedDeltaTime * Role.FpcModule.MaxMovementSpeed));
             Role.FpcModule.IsGrounded = CharacterController.isGrounded;
-
-            if (CanOpenDoors && Physics.Raycast(Core.Position, CurrentLookRotation * Vector3.forward, out RaycastHit _hit, 3.63f, DoorCheckLayers) && _hit.transform.gameObject.TryGetComponent(out DoorVariant door))
-                door.ServerInteract(Core.NPC.ReferenceHub, 0);
         }
 
         public virtual void Look()
@@ -80,6 +77,9 @@ namespace SwiftNPCs.Features
             CurrentLookRotation = Quaternion.RotateTowards(CurrentLookRotation, WishLookRotation, LookSpeed * Time.fixedDeltaTime);
             MouseLook.LookAtDirection(CurrentLookRotation * Vector3.forward);
             Core.transform.rotation = CurrentLookRotation;
+
+            if (CanOpenDoors && Core.TryGetDoor(out DoorVariant door, out bool inVision) && inVision)
+                Core.TrySetDoor(door, true);
         }
     }
 }

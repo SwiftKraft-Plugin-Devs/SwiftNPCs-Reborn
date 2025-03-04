@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Interactables.Interobjects;
+using Interactables.Interobjects.DoorUtils;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -6,6 +8,9 @@ namespace SwiftNPCs.Features
 {
     public class NPCCore : MonoBehaviour
     {
+        public const float InteractionDistance = 3f;
+        public const float DoorDotMinimum = 0.1f;
+
         public NPC NPC { get; private set; }
 
         public readonly List<NPCComponent> Components = [];
@@ -53,5 +58,49 @@ namespace SwiftNPCs.Features
             component = GetNPCComponent<T>();
             return component != null;
         }
+
+        public bool TrySetDoor(DoorVariant door, bool state)
+        {
+            if (door is CheckpointDoor checkpoint || door.TryGetComponentInParent(out checkpoint))
+                door = checkpoint;
+
+            float st = door.GetExactState();
+            if (door.NetworkTargetState == state || (st > 0f && st < 1f))
+                return false;
+
+            if (door.NetworkTargetState != state)
+                door.ServerInteract(NPC.ReferenceHub, 0);
+
+            return true;
+        }
+
+        public DoorVariant GetDoor(out bool inVision)
+        {
+            DoorVariant door = null;
+            float doorDist = Mathf.Infinity;
+            foreach (DoorVariant d in DoorVariant.AllDoors)
+            {
+                if (d is BasicNonInteractableDoor)
+                    continue;
+
+                float dist = (d.transform.position - Position).sqrMagnitude;
+                if (dist <= InteractionDistance * InteractionDistance && (door == null || dist < doorDist))
+                {
+                    door = d;
+                    doorDist = dist;
+                }
+            }
+
+            inVision = door == null || GetDotProduct(door.transform.position) >= DoorDotMinimum;
+            return door;
+        }
+
+        public bool TryGetDoor(out DoorVariant door, out bool inVision)
+        {
+            door = GetDoor(out inVision);
+            return door != null;
+        }
+
+        public float GetDotProduct(Vector3 position) => Vector3.Dot(Motor.CurrentLookRotation * Vector3.forward, (position - transform.position).normalized);
     }
 }

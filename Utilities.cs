@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using UnityEngine;
 
 namespace SwiftNPCs
 {
@@ -27,6 +28,12 @@ namespace SwiftNPCs
         {
             MethodInfo method = obj.GetType().GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance);
             method.Invoke(obj, parameters);
+        }
+
+        public static bool TryGetComponentInParent<T>(this Component comp, out T component) where T : Component
+        {
+            component = comp.GetComponentInParent<T>();
+            return component != null;
         }
     }
 }
