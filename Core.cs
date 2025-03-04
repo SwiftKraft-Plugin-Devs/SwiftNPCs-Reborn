@@ -37,7 +37,7 @@ namespace SwiftNPCs
 
         public override LoadPriority Priority => LoadPriority.Highest;
 
-        public static NavMeshSurface NavMesh = null;
+        public static NavMeshSurface NavMeshSurface = null;
 
         public override void Enable()
         {
@@ -66,26 +66,29 @@ namespace SwiftNPCs
 
         public static void BuildNavMesh()
         {
-            if (NavMesh != null)
+            if (NavMeshSurface != null)
             {
-                NavMesh.RemoveData();
-                Object.Destroy(NavMesh.gameObject);
+                NavMeshSurface.RemoveData();
+                Object.Destroy(NavMeshSurface.gameObject);
             }
 
-            NavMesh = new GameObject("NavMesh").AddComponent<NavMeshSurface>();
+            NavMeshSurface = new GameObject("NavMesh").AddComponent<NavMeshSurface>();
 
-            NavMeshBuildSettings settings = NavMesh.GetBuildSettings();
+            NavMeshBuildSettings settings = NavMeshSurface.GetBuildSettings();
             settings.agentClimb = 0.25f;
             settings.agentHeight = 1.5f;
             settings.agentSlope = 66f;
             settings.agentRadius = 0.1f;
-            NavMesh.buildHeightMesh = true;
-            NavMesh.useGeometry = NavMeshCollectGeometry.PhysicsColliders;
-            NavMesh.collectObjects = CollectObjects.All;
-            NavMesh.layerMask = NavMeshLayers;
-            NavMesh.overrideVoxelSize = true;
-            NavMesh.voxelSize = 0.05f;
-            NavMesh.BuildNavMesh();
+            settings.minRegionArea = 0.2f;
+
+            NavMeshSurface.buildHeightMesh = true;
+            NavMeshSurface.useGeometry = NavMeshCollectGeometry.PhysicsColliders;
+            NavMeshSurface.collectObjects = CollectObjects.All;
+            NavMeshSurface.layerMask = NavMeshLayers;
+            NavMeshSurface.overrideVoxelSize = true;
+            NavMeshSurface.voxelSize = 0.05f;
+
+            NavMeshSurface.BuildNavMesh();
 
             Logger.Info("NavMesh Built! ");
         }
