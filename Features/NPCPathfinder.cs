@@ -39,8 +39,6 @@ namespace SwiftNPCs.Features
 
         public override void Tick()
         {
-            Destination = Player.Get(2).Position;
-
             //Logger.Info("Destination: " + Destination + ", path corners: " + Path.Waypoints.Count + ", current: " + Path.Current);
 
             repathTimer -= Time.fixedDeltaTime;

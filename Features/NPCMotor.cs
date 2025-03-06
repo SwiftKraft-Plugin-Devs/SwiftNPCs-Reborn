@@ -1,5 +1,4 @@
-﻿using Interactables.Interobjects;
-using Interactables.Interobjects.DoorUtils;
+﻿using Interactables.Interobjects.DoorUtils;
 using PlayerRoles.FirstPersonControl;
 using UnityEngine;
 
