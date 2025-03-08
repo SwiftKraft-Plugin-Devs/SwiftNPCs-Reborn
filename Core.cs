@@ -44,11 +44,11 @@ namespace SwiftNPCs
             Instance = this;
             NPCParentCommand.SetPrompt();
 
-            ServerEvents.MapGenerated += RoundStarted;
+            ServerEvents.MapGenerated += MapGenerated;
             PlayerEvents.ShotWeapon += OnPlayerShotWeapon;
         }
 
-        private void RoundStarted(MapGeneratedEventArgs ev)
+        private void MapGenerated(MapGeneratedEventArgs ev)
         {
             BuildNavMesh();
         }
@@ -99,7 +99,7 @@ namespace SwiftNPCs
                 e.Unsubscribe();
 
             NPCManager.RemoveAll();
-            ServerEvents.MapGenerated -= RoundStarted;
+            ServerEvents.MapGenerated -= MapGenerated;
             PlayerEvents.ShotWeapon -= OnPlayerShotWeapon;
         }
     }

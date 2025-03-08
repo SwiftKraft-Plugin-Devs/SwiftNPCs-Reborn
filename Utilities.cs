@@ -36,4 +36,27 @@ namespace SwiftNPCs
             return component != null;
         }
     }
+
+    public class Timer
+    {
+        public float MaxTime { get; set; }
+        public float CurrentTime { get; private set; }
+
+        public bool Ended => CurrentTime <= 0f;
+
+        public Timer(float time) 
+        { 
+            MaxTime = time;
+            CurrentTime = MaxTime;
+        }
+
+        public void Tick(float deltaTime)
+        {
+            CurrentTime -= deltaTime;
+            if (CurrentTime <= 0f)
+                CurrentTime = 0f;
+        }
+
+        public void Reset() => CurrentTime = MaxTime;
+    }
 }

@@ -2,12 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace SwiftNPCs.Features.ItemBehaviors
 {
     public abstract class ItemBehaviorBase
     {
-        public static readonly Dictionary<ItemType, Type> CorrespondingItemBehaviors = [];
+        public static readonly Dictionary<ItemType, List<Type>> CorrespondingItemBehaviors = [];
 
         static ItemBehaviorBase()
         {
@@ -20,7 +22,11 @@ namespace SwiftNPCs.Features.ItemBehaviors
                     {
                         ItemBehaviorAttribute attr = (ItemBehaviorAttribute)attribs[0];
                         foreach (ItemType it in attr.ItemTypes)
-                            CorrespondingItemBehaviors.Add(it, type);
+                        {
+                            if (!CorrespondingItemBehaviors.ContainsKey(it))
+                                CorrespondingItemBehaviors.Add(it, []);
+                            CorrespondingItemBehaviors[it].Add(type);
+                        }
                     }
                 }
             }
@@ -34,10 +40,10 @@ namespace SwiftNPCs.Features.ItemBehaviors
 
         public static implicit operator ItemBehaviorBase(ItemBase item)
         {
-            if (!CorrespondingItemBehaviors.TryGetValue(item.ItemTypeId, out Type type))
+            if (!CorrespondingItemBehaviors.TryGetValue(item.ItemTypeId, out List<Type> type))
                 return null;
 
-            ItemBehaviorBase bb = (ItemBehaviorBase)Activator.CreateInstance(type, [item]);
+            ItemBehaviorBase bb = (ItemBehaviorBase)Activator.CreateInstance(type[Random.Range(0, type.Count)], [item]);
             return bb;
         }
     }
