@@ -3,7 +3,7 @@ using InventorySystem.Items.Firearms.Modules;
 
 namespace SwiftNPCs.Features.ItemBehaviors
 {
-    public abstract class FirearmBehaviorBase<T>(Firearm item) : ItemBehaviorBase<Firearm>(item) where T : ModuleBase
+    public abstract class FirearmBehaviorBase<T> : ItemBehaviorBase<Firearm> where T : ModuleBase
     {
         public AutomaticActionModule Module;
 

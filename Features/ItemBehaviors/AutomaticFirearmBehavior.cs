@@ -1,11 +1,13 @@
 ﻿using InventorySystem.Items.Firearms;
 using InventorySystem.Items.Firearms.Modules;
 using UnityEngine;
+using static InventorySystem.Items.Firearms.Modules.AutomaticActionModule;
+using Logger = LabApi.Features.Console.Logger;
 
 namespace SwiftNPCs.Features.ItemBehaviors
 {
     [ItemBehavior(ItemType.GunA7, ItemType.GunAK, ItemType.GunCom45, ItemType.GunFSP9, ItemType.GunE11SR, ItemType.GunLogicer, ItemType.GunFRMG0, ItemType.GunCrossvec)]
-    public class AutomaticFirearmBehavior(Firearm item) : FirearmBehaviorBase<AutomaticActionModule>(item)
+    public class AutomaticFirearmBehavior : FirearmBehaviorBase<AutomaticActionModule>
     {
         public bool CanShoot => !Item.AnyModuleBusy(Module) && Module.Cocked && !Module.BoltLocked;
 
@@ -14,7 +16,7 @@ namespace SwiftNPCs.Features.ItemBehaviors
         public override void Begin()
         {
             base.Begin();
-            curTimer.MaxTime = Module.TimeBetweenShots;
+            curTimer.MaxTime = 1f / Module.DisplayCyclicRate;
         }
 
         public override void End() { }
@@ -22,6 +24,7 @@ namespace SwiftNPCs.Features.ItemBehaviors
         public override void Tick()
         {
             curTimer.Tick(Time.fixedDeltaTime);
+            Shoot();
         }
 
         public override void Shoot()
@@ -30,7 +33,7 @@ namespace SwiftNPCs.Features.ItemBehaviors
                 return;
 
             curTimer.Reset();
-            Module.ServerShoot(null);
+            Module.InvokePrivate(nameof(Module.ServerShoot), [null]);
         }
     }
 }
