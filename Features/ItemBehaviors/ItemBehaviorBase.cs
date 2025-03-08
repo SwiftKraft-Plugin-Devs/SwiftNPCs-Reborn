@@ -1,4 +1,5 @@
 ﻿using InventorySystem.Items;
+using LabApi.Features.Wrappers;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -38,14 +39,17 @@ namespace SwiftNPCs.Features.ItemBehaviors
 
         public abstract void End();
 
-        public static implicit operator ItemBehaviorBase(ItemBase item)
+        public static implicit operator ItemBehaviorBase(ItemType item)
         {
-            if (!CorrespondingItemBehaviors.TryGetValue(item.ItemTypeId, out List<Type> type))
+            if (!CorrespondingItemBehaviors.TryGetValue(item, out List<Type> type))
                 return null;
 
             ItemBehaviorBase bb = (ItemBehaviorBase)Activator.CreateInstance(type[Random.Range(0, type.Count)], [item]);
             return bb;
         }
+
+        public static implicit operator ItemBehaviorBase(ItemBase item) => item.ItemTypeId;
+        public static implicit operator ItemBehaviorBase(Item item) => item.Type;
     }
 
     public abstract class ItemBehaviorBase<T>(T item) : ItemBehaviorBase where T : ItemBase

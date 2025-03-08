@@ -19,6 +19,7 @@ namespace SwiftNPCs.Features
 
         public NPCMotor Motor { get; private set; }
         public NPCPathfinder Pathfinder { get; private set; }
+        public NPCItemUser ItemUser { get; private set; }
 
         protected virtual void Update()
         {
@@ -32,11 +33,18 @@ namespace SwiftNPCs.Features
                 component.Tick();
         }
 
+        protected virtual void OnDestroy()
+        {
+            foreach (NPCComponent component in Components)
+                component.Close();
+        }
+
         public void Setup(NPC npc)
         {
             NPC = npc;
             Motor = AddNPCComponent<NPCMotor>();
             Pathfinder = AddNPCComponent<NPCPathfinder>();
+            ItemUser = AddNPCComponent<NPCItemUser>();
         }
 
         public T AddNPCComponent<T>() where T : NPCComponent, new()

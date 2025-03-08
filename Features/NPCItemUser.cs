@@ -1,9 +1,6 @@
-﻿using SwiftNPCs.Features.ItemBehaviors;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using LabApi.Events.Arguments.PlayerEvents;
+using LabApi.Events.Handlers;
+using SwiftNPCs.Features.ItemBehaviors;
 
 namespace SwiftNPCs.Features
 {
@@ -21,14 +18,28 @@ namespace SwiftNPCs.Features
         }
         ItemBehaviorBase _currentItemBehavior;
 
-        public override void Begin()
-        {
-            
-        }
+        public bool CanUse = true;
+
+        public override void Begin() => PlayerEvents.ChangedItem += ChangedItem;
 
         public override void Tick()
         {
-            CurrentItemBehavior?.Tick();
+            if (CanUse)
+                CurrentItemBehavior?.Tick();
+        }
+
+        public override void Close()
+        {
+            base.Close();
+            PlayerEvents.ChangedItem -= ChangedItem;
+        }
+
+        public virtual void ChangedItem(PlayerChangedItemEventArgs ev)
+        {
+            if (ev.Player != Core.NPC.WrapperPlayer)
+                return;
+
+            CurrentItemBehavior = ev.NewItem;
         }
     }
 }
