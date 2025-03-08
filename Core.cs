@@ -75,6 +75,7 @@ namespace SwiftNPCs
             NavMeshSurface = new GameObject("NavMesh").AddComponent<NavMeshSurface>();
 
             NavMeshBuildSettings settings = NavMeshSurface.GetBuildSettings();
+
             settings.agentClimb = 0.25f;
             settings.agentHeight = 1.5f;
             settings.agentSlope = 66f;
