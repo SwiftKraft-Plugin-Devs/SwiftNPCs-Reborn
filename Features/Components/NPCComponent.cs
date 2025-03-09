@@ -1,4 +1,4 @@
-﻿namespace SwiftNPCs.Features
+﻿namespace SwiftNPCs.Features.Components
 {
     public abstract class NPCComponent
     {

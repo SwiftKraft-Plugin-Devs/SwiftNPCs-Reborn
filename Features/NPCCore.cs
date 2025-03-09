@@ -1,5 +1,8 @@
 ﻿using Interactables.Interobjects;
 using Interactables.Interobjects.DoorUtils;
+using LabApi.Features.Wrappers;
+using SwiftNPCs.Features.Components;
+using SwiftNPCs.Features.Targettables;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -16,6 +19,8 @@ namespace SwiftNPCs.Features
         public readonly List<NPCComponent> Components = [];
 
         public Vector3 Position => NPC.WrapperPlayer.Position;
+
+        public readonly List<TargetableBase> Targets = [];
 
         public NPCMotor Motor { get; private set; }
         public NPCPathfinder Pathfinder { get; private set; }
@@ -69,7 +74,7 @@ namespace SwiftNPCs.Features
 
         public bool TrySetDoor(DoorVariant door, bool state)
         {
-            if (door is CheckpointDoor checkpoint || door.TryGetComponentInParent(out checkpoint))
+            if (door is Interactables.Interobjects.CheckpointDoor checkpoint || door.TryGetComponentInParent(out checkpoint))
                 door = checkpoint;
 
             float st = door.GetExactState();

@@ -2,7 +2,7 @@
 using PlayerRoles.FirstPersonControl;
 using UnityEngine;
 
-namespace SwiftNPCs.Features
+namespace SwiftNPCs.Features.Components
 {
     public class NPCMotor : NPCComponent
     {
@@ -69,6 +69,9 @@ namespace SwiftNPCs.Features
         {
             CharacterController.Move(WishMoveDirection * (Time.fixedDeltaTime * Role.FpcModule.MaxMovementSpeed));
             Role.FpcModule.IsGrounded = CharacterController.isGrounded;
+
+            if (CanOpenDoors && WishMoveDirection != Vector3.zero && Core.TryGetDoor(out DoorVariant door, out bool inVision) && inVision && Vector3.Angle(door.transform.position - Core.Position, WishMoveDirection) <= 45f)
+                Core.TrySetDoor(door, true);
         }
 
         public virtual void Look()
@@ -76,9 +79,6 @@ namespace SwiftNPCs.Features
             CurrentLookRotation = Quaternion.RotateTowards(CurrentLookRotation, WishLookRotation, LookSpeed * Time.fixedDeltaTime);
             MouseLook.LookAtDirection(CurrentLookRotation * Vector3.forward);
             Core.transform.rotation = CurrentLookRotation;
-
-            if (CanOpenDoors && Core.TryGetDoor(out DoorVariant door, out bool inVision) && inVision)
-                Core.TrySetDoor(door, true);
         }
     }
 }

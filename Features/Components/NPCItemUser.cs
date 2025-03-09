@@ -2,7 +2,7 @@
 using LabApi.Events.Handlers;
 using SwiftNPCs.Features.ItemBehaviors;
 
-namespace SwiftNPCs.Features
+namespace SwiftNPCs.Features.Components
 {
     public class NPCItemUser : NPCComponent
     {

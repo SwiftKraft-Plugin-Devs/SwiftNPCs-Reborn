@@ -1,8 +1,5 @@
-﻿using InventorySystem.Items.Firearms;
-using InventorySystem.Items.Firearms.Modules;
+﻿using InventorySystem.Items.Firearms.Modules;
 using UnityEngine;
-using static InventorySystem.Items.Firearms.Modules.AutomaticActionModule;
-using Logger = LabApi.Features.Console.Logger;
 
 namespace SwiftNPCs.Features.ItemBehaviors
 {

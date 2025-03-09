@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using Logger = LabApi.Features.Console.Logger;
 
-namespace SwiftNPCs.Features
+namespace SwiftNPCs.Features.Components
 {
     public class NPCPathfinder : NPCComponent
     {
