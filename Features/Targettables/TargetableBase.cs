@@ -6,7 +6,15 @@ namespace SwiftNPCs.Features.Targettables
 {
     public abstract class TargetableBase : IComparable<TargetableBase>
     {
+        public NPCCore NPC { get; set; }
+
+        public virtual float PriorityScore => Priority * PriorityWeight + Distance * DistanceWeight;
+
+        public virtual float PriorityWeight => 5f;
+        public virtual float DistanceWeight => 1f;
+
         public abstract int Priority { get; }
+        public virtual float Distance => Vector3.Distance(NPC.Position, PivotPosition);
 
         public abstract Vector3 HitPosition { get; }
 
@@ -14,7 +22,7 @@ namespace SwiftNPCs.Features.Targettables
 
         public virtual Vector3 PivotPosition => HitPosition;
 
-        public virtual int CompareTo(TargetableBase other) => Priority.CompareTo(other.Priority);
+        public virtual int CompareTo(TargetableBase other) => PriorityScore.CompareTo(other.PriorityScore);
     }
 
     public abstract class TargetableBase<T>(T target) : TargetableBase

@@ -1,6 +1,5 @@
 ﻿using Interactables.Interobjects;
 using Interactables.Interobjects.DoorUtils;
-using LabApi.Features.Wrappers;
 using SwiftNPCs.Features.Components;
 using SwiftNPCs.Features.Targettables;
 using System.Collections.Generic;
@@ -50,6 +49,20 @@ namespace SwiftNPCs.Features
             Motor = AddNPCComponent<NPCMotor>();
             Pathfinder = AddNPCComponent<NPCPathfinder>();
             ItemUser = AddNPCComponent<NPCItemUser>();
+        }
+
+        public void AddTarget<T1, T2>(T2 target) where T1 : TargetableBase<T2>, new()
+        {
+            foreach (TargetableBase targ in Targets)
+                if (targ is TargetableBase<T2> ta && ta.Target.Equals(target))
+                {
+                    Targets.Sort();
+                    return;
+                }
+
+            T1 t = new() { Target = target, NPC = this };
+            Targets.Add(t);
+            Targets.Sort();
         }
 
         public T AddNPCComponent<T>() where T : NPCComponent, new()
