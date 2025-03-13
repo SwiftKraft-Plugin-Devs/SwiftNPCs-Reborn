@@ -25,6 +25,8 @@ namespace SwiftNPCs.Features
         public NPCPathfinder Pathfinder { get; private set; }
         public NPCItemUser ItemUser { get; private set; }
 
+        public bool HasTarget => Targets.Count > 0;
+
         protected virtual void Update()
         {
             foreach (NPCComponent component in Components)

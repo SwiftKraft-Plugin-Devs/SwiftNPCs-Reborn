@@ -21,7 +21,12 @@ namespace SwiftNPCs.Features.ItemBehaviors
         public override void Tick()
         {
             curTimer.Tick(Time.fixedDeltaTime);
-            Shoot();
+
+            if (User.Core.HasTarget)
+            {
+                User.Core.Motor.WishLookPosition = User.Core.Targets[0].HitPosition;
+                Shoot();
+            }
         }
 
         public override void Shoot()
