@@ -31,9 +31,25 @@ namespace SwiftNPCs.Features.Components
         public void Search()
         {
             foreach (Player p in Player.List)
-                if ((p.Position - Core.Position).sqrMagnitude <= CurrentRange * CurrentRange && Core.NPC.WrapperPlayer.IsEnemy(p))
+                if ((p.Position - Core.Position).sqrMagnitude <= CurrentRange * CurrentRange && HasLOS(p, out _) && Core.NPC.WrapperPlayer.IsEnemy(p))
                     Core.AddTarget<TargetablePlayer, Player>(p);
-            Core.Targets.RemoveAll((t) => t is TargetablePlayer p && (Core.NPC.WrapperPlayer.IsEnemy(p.Target) || (p.HitPosition - Core.Position).sqrMagnitude > CurrentRange * CurrentRange));
+            Core.Targets.RemoveAll((t) => !HasLOS(t, out _) || t is TargetablePlayer p && (!Core.NPC.WrapperPlayer.IsEnemy(p.Target) || (p.HitPosition - Core.Position).sqrMagnitude > CurrentRange * CurrentRange));
+        }
+
+        public bool HasLOS(Player player, out Vector3 sight) => CheckLOS(Core.NPC.WrapperPlayer.Camera.position, out sight, player.Camera.position, player.Position);
+
+        public bool HasLOS(TargetableBase t, out Vector3 sight) => CheckLOS(Core.NPC.WrapperPlayer.Camera.position, out sight, t.CriticalPosition, t.HitPosition);
+
+        public static bool CheckLOS(Vector3 cam, out Vector3 sight, params Vector3[] others)
+        {
+            foreach (Vector3 pos in others)
+                if (!Physics.Linecast(cam, pos, SightLayers, QueryTriggerInteraction.Ignore))
+                {
+                    sight = pos;
+                    return true;
+                }
+            sight = default;
+            return false;
         }
     }
 

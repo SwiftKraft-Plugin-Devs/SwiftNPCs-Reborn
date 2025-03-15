@@ -1,10 +1,12 @@
 ﻿using Interactables.Interobjects;
 using Interactables.Interobjects.DoorUtils;
+using LabApi.Features.Console;
 using SwiftNPCs.Features.Components;
 using SwiftNPCs.Features.Targettables;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Logger = LabApi.Features.Console.Logger;
 
 namespace SwiftNPCs.Features
 {
@@ -24,6 +26,7 @@ namespace SwiftNPCs.Features
         public NPCMotor Motor { get; private set; }
         public NPCPathfinder Pathfinder { get; private set; }
         public NPCItemUser ItemUser { get; private set; }
+        public NPCScanner Scanner { get; private set; }
 
         public bool HasTarget => Targets.Count > 0;
 
@@ -51,6 +54,7 @@ namespace SwiftNPCs.Features
             Motor = AddNPCComponent<NPCMotor>();
             Pathfinder = AddNPCComponent<NPCPathfinder>();
             ItemUser = AddNPCComponent<NPCItemUser>();
+            Scanner = AddNPCComponent<NPCScanner>();
         }
 
         public void AddTarget<T1, T2>(T2 target) where T1 : TargetableBase<T2>, new()
@@ -61,6 +65,8 @@ namespace SwiftNPCs.Features
                     Targets.Sort();
                     return;
                 }
+
+            Logger.Info("A");
 
             T1 t = new() { Target = target, NPC = this };
             Targets.Add(t);
