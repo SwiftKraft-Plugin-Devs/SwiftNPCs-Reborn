@@ -25,8 +25,12 @@ namespace SwiftNPCs.Features.Targettables
         public virtual int CompareTo(TargetableBase other) => PriorityScore.CompareTo(other.PriorityScore);
     }
 
-    public abstract class TargetableBase<T>(T target) : TargetableBase
+    public abstract class TargetableBase<T> : TargetableBase
     {
-        public T Target { get; set; } = target;
+        public TargetableBase() { }
+
+        public TargetableBase(T target) : this() => Target = target;
+
+        public T Target { get; set; }
     }
 }
