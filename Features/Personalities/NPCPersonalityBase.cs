@@ -14,7 +14,8 @@ namespace SwiftNPCs.Features.Personalities
 
         public bool IsMilitant => Role.GetTeam() == Team.FoundationForces || Role.GetTeam() == Team.ChaosInsurgency;
         public bool IsCivilian => Role.GetTeam() == Team.ClassD || Role.GetTeam() == Team.Scientists;
-        public bool IsArmed => GetWeapon(out _, out _);
+        public bool IsArmed => Core.Inventory.CurrentItem != null && (Core.Inventory.CurrentItem.Category == ItemCategory.Firearm || Core.Inventory.CurrentItem.Category == ItemCategory.SpecialWeapon || Core.Inventory.CurrentItem.Category == ItemCategory.Grenade);
+        public bool HasWeapon => GetWeapon(out _, out _);
         public bool IsThreat => IsMilitant || IsArmed || WrapperPlayer.IsSCP;
 
         public bool GetWeapon(out ItemBase item, out ushort slot) => Core.Inventory.HasItem(out item, out slot, ItemCategory.Firearm, ItemCategory.SpecialWeapon, ItemCategory.Grenade);

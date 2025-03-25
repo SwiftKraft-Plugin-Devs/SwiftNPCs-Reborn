@@ -2,6 +2,7 @@
 using LabApi.Features.Wrappers;
 using PlayerRoles;
 using SwiftNPCs.Features;
+using SwiftNPCs.Features.Personalities;
 using System;
 
 namespace SwiftNPCs.Commands
@@ -35,7 +36,8 @@ namespace SwiftNPCs.Commands
                 return false;
             }
 
-            new NPC(p.Position, role);
+            NPC npc = new(p.Position, role);
+            npc.Core.SetPersonality<NPCPersonalityHuman>();
 
             response = "Spawned " + role + " NPC at " + p.Position;
             return true;

@@ -30,7 +30,7 @@ namespace SwiftNPCs.Features.Components
 
         public void Search()
         {
-            if (!HasLOS(Core.Target, out _) || Core.Target is TargetablePlayer p && (!Core.NPC.WrapperPlayer.IsEnemy(p.Target) || (p.HitPosition - Core.Position).sqrMagnitude > CurrentRange * CurrentRange))
+            if (Core.Target != null && (!HasLOS(Core.Target, out _) || Core.Target is TargetablePlayer p && (!Core.NPC.WrapperPlayer.IsEnemy(p.Target) || (p.HitPosition - Core.Position).sqrMagnitude > CurrentRange * CurrentRange)))
                 Core.Target = null;
 
             foreach (Player player in Player.List)
