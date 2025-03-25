@@ -7,6 +7,8 @@ namespace SwiftNPCs.Features.Components
     {
         public Inventory Inventory => Core.NPC.WrapperPlayer.Inventory;
 
+        public ItemBase CurrentItem => Inventory.CurInstance;
+
         #region Overrides
 
         public override void Begin() { }
@@ -16,6 +18,17 @@ namespace SwiftNPCs.Features.Components
         #endregion
 
         #region HasItem
+
+        public bool HasItem(out ItemBase item, out ushort slot, params ItemCategory[] categories)
+        {
+            foreach (ItemCategory category in categories)
+                if (HasItem(category, out item, out slot))
+                    return true;
+
+            item = null;
+            slot = ushort.MaxValue;
+            return false;
+        }
 
         public bool HasItem(ItemCategory category, out ItemBase item, out ushort slot)
         {
@@ -66,6 +79,10 @@ namespace SwiftNPCs.Features.Components
             slot = ushort.MaxValue;
             return false;
         }
+
+        public void EquipItem(ItemBase item) => EquipItem(item.ItemSerial);
+        public void EquipItem(ushort itemSerial) => Inventory.ServerSelectItem(itemSerial);
+        public void UnequipItem() => EquipItem(0);
 
         #endregion
     }

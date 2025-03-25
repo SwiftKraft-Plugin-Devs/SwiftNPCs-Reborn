@@ -30,10 +30,12 @@ namespace SwiftNPCs.Features.Components
 
         public void Search()
         {
-            foreach (Player p in Player.List)
-                if ((p.Position - Core.Position).sqrMagnitude <= CurrentRange * CurrentRange && HasLOS(p, out _) && Core.NPC.WrapperPlayer.IsEnemy(p))
-                    Core.AddTarget<TargetablePlayer, Player>(p);
-            Core.Targets.RemoveAll((t) => !HasLOS(t, out _) || t is TargetablePlayer p && (!Core.NPC.WrapperPlayer.IsEnemy(p.Target) || (p.HitPosition - Core.Position).sqrMagnitude > CurrentRange * CurrentRange));
+            if (!HasLOS(Core.Target, out _) || Core.Target is TargetablePlayer p && (!Core.NPC.WrapperPlayer.IsEnemy(p.Target) || (p.HitPosition - Core.Position).sqrMagnitude > CurrentRange * CurrentRange))
+                Core.Target = null;
+
+            foreach (Player player in Player.List)
+                if ((player.Position - Core.Position).sqrMagnitude <= CurrentRange * CurrentRange && (Core.Target == null || (player.Position - Core.Position).sqrMagnitude < (Core.Target.HitPosition - Core.Position).sqrMagnitude) && HasLOS(player, out _) && Core.NPC.WrapperPlayer.IsEnemy(player))
+                    Core.Target = new TargetablePlayer(player);
         }
 
         public bool HasLOS(Player player, out Vector3 sight) => CheckLOS(Core.NPC.WrapperPlayer.Camera.position, out sight, player.Camera.position, player.Position);

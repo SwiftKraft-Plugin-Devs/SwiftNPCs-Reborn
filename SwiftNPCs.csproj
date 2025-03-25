@@ -47,7 +47,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Personalities\" />
     <Folder Include="NavMesh\" />
   </ItemGroup>
 

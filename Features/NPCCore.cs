@@ -1,12 +1,11 @@
 ﻿using Interactables.Interobjects;
 using Interactables.Interobjects.DoorUtils;
-using LabApi.Features.Console;
 using SwiftNPCs.Features.Components;
+using SwiftNPCs.Features.Personalities;
 using SwiftNPCs.Features.Targettables;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Logger = LabApi.Features.Console.Logger;
 
 namespace SwiftNPCs.Features
 {
@@ -15,20 +14,23 @@ namespace SwiftNPCs.Features
         public const float InteractionDistance = 3f;
         public const float DoorDotMinimum = 0.1f;
 
+        public NPCPersonalityBase Personality { get; private set; }
+
         public NPC NPC { get; private set; }
 
         public readonly List<NPCComponent> Components = [];
 
         public Vector3 Position => NPC.WrapperPlayer.Position;
 
-        public readonly List<TargetableBase> Targets = [];
+        public TargetableBase Target;
 
         public NPCMotor Motor { get; private set; }
         public NPCPathfinder Pathfinder { get; private set; }
         public NPCItemUser ItemUser { get; private set; }
         public NPCScanner Scanner { get; private set; }
+        public NPCInventory Inventory { get; private set; }
 
-        public bool HasTarget => Targets.Count > 0;
+        public bool HasTarget => Target != null;
 
         protected virtual void Update()
         {
@@ -40,6 +42,7 @@ namespace SwiftNPCs.Features
         {
             foreach (NPCComponent component in Components)
                 component.Tick();
+            Personality?.Tick();
         }
 
         protected virtual void OnDestroy()
@@ -55,22 +58,34 @@ namespace SwiftNPCs.Features
             Pathfinder = AddNPCComponent<NPCPathfinder>();
             ItemUser = AddNPCComponent<NPCItemUser>();
             Scanner = AddNPCComponent<NPCScanner>();
+            Inventory = AddNPCComponent<NPCInventory>();
         }
 
-        public void AddTarget<T1, T2>(T2 target) where T1 : TargetableBase<T2>, new()
+        public void RemovePersonality()
         {
-            foreach (TargetableBase targ in Targets)
-                if (targ is TargetableBase<T2> ta && ta.Target.Equals(target))
-                {
-                    Targets.Sort();
-                    return;
-                }
+            Personality?.End();
+            Personality = null;
+        }
 
-            Logger.Info("A");
+        public void SetPersonality(NPCPersonalityBase personality)
+        {
+            if (personality == null)
+            {
+                RemovePersonality();
+                return;
+            }
 
-            T1 t = new() { Target = target, NPC = this };
-            Targets.Add(t);
-            Targets.Sort();
+            personality.Init(this);
+            Personality?.End();
+            Personality = personality;
+            personality.Begin();
+        }
+
+        public T SetPersonality<T>() where T : NPCPersonalityBase, new()
+        {
+            T personality = new();
+            SetPersonality(personality);
+            return personality;
         }
 
         public T AddNPCComponent<T>() where T : NPCComponent, new()
@@ -95,7 +110,7 @@ namespace SwiftNPCs.Features
 
         public bool TrySetDoor(DoorVariant door, bool state)
         {
-            if (door is Interactables.Interobjects.CheckpointDoor checkpoint || door.TryGetComponentInParent(out checkpoint))
+            if (door is CheckpointDoor checkpoint || door.TryGetComponentInParent(out checkpoint))
                 door = checkpoint;
 
             float st = door.GetExactState();
