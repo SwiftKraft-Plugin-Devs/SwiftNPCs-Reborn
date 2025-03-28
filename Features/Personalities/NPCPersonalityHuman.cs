@@ -9,12 +9,27 @@ namespace SwiftNPCs.Features.Personalities
 
         public bool CanChase = true;
 
+        bool chasing;
+
         public override void Begin() => TargetLastPosition = Core.Position;
 
         public override void End() { }
 
         public override void Tick()
         {
+            if (Core.HasTarget)
+            {
+                TargetLastPosition = Core.Target.HitPosition;
+                chasing = false;
+                if ((Core.Pathfinder.Destination - Core.Position).sqrMagnitude > 9f)
+                    Core.Pathfinder.Destination = Core.Position;
+            }
+            else if (CanChase && (TargetLastPosition - Core.Position).sqrMagnitude > 9f && Core.Pathfinder.RealDestination != TargetLastPosition)
+            {
+                Core.Pathfinder.Destination = TargetLastPosition;
+                chasing = true;
+            }
+
             if (GetWeapon(out ItemBase item, out _))
             {
                 if (!IsArmed && (IsThreat || Core.HasTarget))
@@ -22,14 +37,9 @@ namespace SwiftNPCs.Features.Personalities
                     Core.ItemUser.CanUse = true;
                     Core.Inventory.EquipItem(item);
                 }
-                else if (IsCivilian && !Core.HasTarget)
+                else if (IsCivilian && !Core.HasTarget && !chasing)
                     Core.Inventory.UnequipItem();
             }
-
-            if (Core.HasTarget)
-                TargetLastPosition = Core.Target.HitPosition;
-            else if (CanChase && (TargetLastPosition - Core.Position).sqrMagnitude > 1f && Core.Pathfinder.Destination != TargetLastPosition)
-                Core.Pathfinder.Destination = TargetLastPosition;
         }
     }
 }

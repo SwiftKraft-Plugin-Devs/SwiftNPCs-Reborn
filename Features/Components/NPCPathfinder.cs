@@ -1,8 +1,6 @@
-﻿using LabApi.Features.Wrappers;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-using Logger = LabApi.Features.Console.Logger;
 
 namespace SwiftNPCs.Features.Components
 {
@@ -11,6 +9,8 @@ namespace SwiftNPCs.Features.Components
         public NPCMotor Motor { get; private set; }
 
         public bool LookAtWaypoint = true;
+
+        public float DestinationRange = 3f;
 
         public Vector3 Destination
         {
@@ -30,6 +30,8 @@ namespace SwiftNPCs.Features.Components
         float repathTimer;
         public NPCPath Path { get; private set; }
 
+        public bool IsAtDestination { get; private set; }
+
         public override void Begin()
         {
             Path = new(this);
@@ -40,6 +42,18 @@ namespace SwiftNPCs.Features.Components
         public override void Tick()
         {
             //Logger.Info("Destination: " + Destination + ", path corners: " + Path.Waypoints.Count + ", current: " + Path.Current);
+
+            IsAtDestination = (Destination - Core.Position).sqrMagnitude <= DestinationRange * DestinationRange;
+
+            if (IsAtDestination)
+            {
+                if (RealDestination != Core.Position)
+                {
+                    Destination = Core.Position;
+                    Motor.WishMoveDirection = Vector3.zero;
+                }
+                return;
+            }
 
             repathTimer -= Time.fixedDeltaTime;
             if (repathTimer <= 0f)
@@ -61,7 +75,7 @@ namespace SwiftNPCs.Features.Components
                 Motor.WishLookDirection = direction;
         }
 
-        public class NPCPath(NPCPathfinder parent, float waypointRadius = 1.5f)
+        public class NPCPath(NPCPathfinder parent, float waypointRadius = 2f)
         {
             public readonly NPCPathfinder Parent = parent;
 

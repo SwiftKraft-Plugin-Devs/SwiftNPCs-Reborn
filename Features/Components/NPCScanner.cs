@@ -7,7 +7,7 @@ namespace SwiftNPCs.Features.Components
 {
     public class NPCScanner : NPCComponent
     {
-        public static LayerMask SightLayers = LayerMask.GetMask("Default");
+        public static LayerMask SightLayers = LayerMask.GetMask("Default", "Door");
 
         public float FacilityRange = 40f;
         public float SurfaceRange = 70f;

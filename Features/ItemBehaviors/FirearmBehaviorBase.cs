@@ -10,5 +10,7 @@ namespace SwiftNPCs.Features.ItemBehaviors
         public override void Begin() => Item.TryGetModule(out Module);
 
         public abstract void Shoot();
+
+        public abstract void Reload();
     }
 }
