@@ -1,25 +1,38 @@
-﻿using InventorySystem.Items.Firearms.Modules;
+﻿using InventorySystem.Items.Autosync;
+using InventorySystem.Items.Firearms.Modules;
+using Mirror;
 using UnityEngine;
+using static InventorySystem.Items.Firearms.Modules.AnimatorReloaderModuleBase;
+using Logger = LabApi.Features.Console.Logger;
 
 namespace SwiftNPCs.Features.ItemBehaviors
 {
     [ItemBehavior(ItemType.GunA7, ItemType.GunAK, ItemType.GunCom45, ItemType.GunCOM15, ItemType.GunCOM18, ItemType.GunFSP9, ItemType.GunE11SR, ItemType.GunLogicer, ItemType.GunFRMG0, ItemType.GunCrossvec)]
     public class AutomaticFirearmBehavior : FirearmBehaviorBase<AutomaticActionModule>
     {
-        public MagazineModule MagazineModule { get; private set; }
+        public AnimatorReloaderModuleBase Reloader { get; private set; }
+        public IPrimaryAmmoContainerModule Ammo { get; private set; }
 
         public bool CanShoot => !Item.AnyModuleBusy(Module) && Module.Cocked && !Module.BoltLocked;
 
         private readonly Timer curTimer = new(0f);
         private readonly Timer reloadTimer = new(0f);
 
+        bool startingReload;
+
         public override void Begin()
         {
             base.Begin();
             curTimer.MaxTime = 1f / Module.DisplayCyclicRate;
-            if (Module.Firearm.TryGetModule(out MagazineModule mod))
+            if (Item.TryGetModule(out AnimatorReloaderModuleBase mod1, false))
             {
-                MagazineModule = mod;
+                Reloader = mod1;
+                Logger.Info("Got reloader: " + mod1.GetType());
+            }
+            if (Item.TryGetModule(out IPrimaryAmmoContainerModule mod2))
+            {
+                Ammo = mod2;
+                Logger.Info("Got ammo: " + mod2.GetType());
             }
         }
 
@@ -34,6 +47,11 @@ namespace SwiftNPCs.Features.ItemBehaviors
                 User.Core.Motor.WishLookPosition = sight;
                 Shoot();
             }
+
+            if (Ammo.AmmoStored <= 0)
+                Reload();
+            else
+                startingReload = false;
         }
 
         public override void Shoot()
@@ -47,7 +65,14 @@ namespace SwiftNPCs.Features.ItemBehaviors
 
         public override void Reload()
         {
-            
+            if (Reloader.IsReloading || startingReload)
+                return;
+
+            Logger.Info("Reloadin!");
+            startingReload = true;
+            NetworkWriter x = new();
+            x.WriteSubheader(ReloaderMessageHeader.Reload);
+            Reloader.ServerProcessCmd(new(x));
         }
     }
 }
