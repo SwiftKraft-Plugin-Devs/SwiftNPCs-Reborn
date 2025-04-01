@@ -1,5 +1,6 @@
 ﻿using InventorySystem.Items.Autosync;
 using InventorySystem.Items.Firearms.Modules;
+using LabApi.Features.Wrappers;
 using Mirror;
 using UnityEngine;
 using static InventorySystem.Items.Firearms.Modules.AnimatorReloaderModuleBase;
@@ -70,9 +71,13 @@ namespace SwiftNPCs.Features.ItemBehaviors
 
             Logger.Info("Reloadin!");
             startingReload = true;
-            NetworkWriter x = new();
-            x.WriteSubheader(ReloaderMessageHeader.Reload);
-            Reloader.ServerProcessCmd(new(x));
+
+            using (new AutosyncCmd(Reloader.ItemId, out NetworkWriter writer))
+            {
+                writer.WriteByte(Reloader.SyncId);
+                writer.WriteSubheader(ReloaderMessageHeader.Reload);
+                Reloader.ServerProcessCmd(new(writer));
+            }
         }
     }
 }
