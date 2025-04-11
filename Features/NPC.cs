@@ -2,6 +2,7 @@
 using LabApi.Events.Handlers;
 using LabApi.Features.Wrappers;
 using Mirror;
+using NetworkManagerUtils;
 using PlayerRoles;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -10,7 +11,7 @@ namespace SwiftNPCs.Features
 {
     public class NPC
     {
-        public readonly NPCConnection Connection;
+        public readonly DummyNetworkConnection Connection;
         public readonly Player WrapperPlayer;
         public readonly NPCCore Core;
         public ReferenceHub ReferenceHub => WrapperPlayer.ReferenceHub;
