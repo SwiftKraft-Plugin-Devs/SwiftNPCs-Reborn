@@ -1,7 +1,7 @@
-﻿using CommandSystem.Commands.RemoteAdmin.Dummies;
-using GameCore;
+﻿using InventorySystem.Items;
 using InventorySystem.Items.Firearms.Modules;
 using UnityEngine;
+using static InventorySystem.Items.ItemSerializedDummyAction;
 using Logger = LabApi.Features.Console.Logger;
 
 namespace SwiftNPCs.Features.ItemBehaviors
@@ -9,7 +9,7 @@ namespace SwiftNPCs.Features.ItemBehaviors
     [ItemBehavior(ItemType.GunA7, ItemType.GunAK, ItemType.GunCom45, ItemType.GunCOM15, ItemType.GunCOM18, ItemType.GunFSP9, ItemType.GunE11SR, ItemType.GunLogicer, ItemType.GunFRMG0, ItemType.GunCrossvec)]
     public class AutomaticFirearmBehavior : FirearmBehaviorBase<AutomaticActionModule>
     {
-        public AnimatorReloaderModuleBase Reloader { get; private set; }
+        public IReloaderModule Reloader { get; private set; }
         public IPrimaryAmmoContainerModule Ammo { get; private set; }
 
         public bool CanShoot => !Item.AnyModuleBusy(Module) && Module.Cocked && !Module.BoltLocked;
@@ -23,7 +23,8 @@ namespace SwiftNPCs.Features.ItemBehaviors
         {
             base.Begin();
             curTimer.MaxTime = 1f / Module.DisplayCyclicRate;
-            if (Item.TryGetModule(out AnimatorReloaderModuleBase mod1, false))
+
+            if (Item.TryGetModule(out IReloaderModule mod1, false))
             {
                 Reloader = mod1;
                 Logger.Info("Got reloader: " + mod1.GetType());
@@ -32,6 +33,15 @@ namespace SwiftNPCs.Features.ItemBehaviors
             {
                 Ammo = mod2;
                 Logger.Info("Got ammo: " + mod2.GetType());
+            }
+
+            ItemSerializedDummyAction act = Item.GetComponentInChildren<ItemSerializedDummyAction>();
+
+            DefinedAction[] actions = act.GetPrivateFieldValue<DefinedAction[]>(nameof(ItemSerializedDummyAction._actions));
+
+            foreach (DefinedAction action in actions)
+            {
+                Logger.Info(action.Name + " - " + action.Action);
             }
         }
 

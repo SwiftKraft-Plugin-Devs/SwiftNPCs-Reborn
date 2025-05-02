@@ -24,10 +24,25 @@ namespace SwiftNPCs
             return roleType != RoleTypeId.None;
         }
 
-        public static void InvokePrivate<T>(this T obj, string methodName, params object[] parameters)
+        public static void InvokePrivate(this object obj, string methodName, params object[] parameters)
         {
             MethodInfo method = obj.GetType().GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance);
             method.Invoke(obj, parameters);
+        }
+
+        public static T GetPrivateFieldValue<T>(this object target, string fieldName)
+        {
+            if (target == null) throw new ArgumentNullException(nameof(target));
+            if (fieldName == null) throw new ArgumentNullException(nameof(fieldName));
+
+            Type type = target.GetType();
+            FieldInfo field = type.GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance);
+
+            object value = field.GetValue(target);
+
+            return field == null || value is not T t
+                ? throw new ArgumentException($"Field '{fieldName}' not found in type {type.FullName}, or might be a type mismatch of variable.")
+                : t;
         }
 
         public static bool TryGetComponentInParent<T>(this Component comp, out T component) where T : Component
