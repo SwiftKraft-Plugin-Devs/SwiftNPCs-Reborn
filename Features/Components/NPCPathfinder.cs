@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using LabApi.Features.Wrappers;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -42,6 +43,7 @@ namespace SwiftNPCs.Features.Components
         public override void Tick()
         {
             //Logger.Info("Destination: " + Destination + ", path corners: " + Path.Waypoints.Count + ", current: " + Path.Current);
+            //Destination = Player.Get(2).Position;
 
             IsAtDestination = (Destination - Core.Position).sqrMagnitude <= DestinationRange * DestinationRange;
 

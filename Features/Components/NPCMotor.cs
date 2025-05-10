@@ -1,6 +1,9 @@
-﻿using Interactables.Interobjects.DoorUtils;
+﻿using CommandSystem.Commands.RemoteAdmin.Dummies;
+using Interactables.Interobjects.DoorUtils;
 using PlayerRoles.FirstPersonControl;
+using RelativePositioning;
 using UnityEngine;
+using Utf8Json.Internal.DoubleConversion;
 
 namespace SwiftNPCs.Features.Components
 {
@@ -37,9 +40,10 @@ namespace SwiftNPCs.Features.Components
         public FpcMotor Motor { get; protected set; }
         public FpcMouseLook MouseLook { get; protected set; }
 
-        public CharacterController CharacterController { get; protected set; }
+        // public CharacterController CharacterController { get; protected set; }
 
         public float LookSpeed = 400f;
+        public float MoveSpeed = 30f;
 
         public bool CanOpenDoors = true;
 
@@ -50,7 +54,7 @@ namespace SwiftNPCs.Features.Components
                 Role = role;
                 Motor = role.FpcModule.Motor;
                 MouseLook = role.FpcModule.MouseLook;
-                CharacterController = role.FpcModule.CharController;
+                // CharacterController = role.FpcModule.CharController;
             }
         }
 
@@ -67,8 +71,10 @@ namespace SwiftNPCs.Features.Components
 
         public virtual void Move()
         {
-            CharacterController.Move(WishMoveDirection * (Time.fixedDeltaTime * Role.FpcModule.MaxMovementSpeed));
-            Role.FpcModule.IsGrounded = CharacterController.isGrounded;
+            // CharacterController.Move(WishMoveDirection * (Time.fixedDeltaTime * Role.FpcModule.MaxMovementSpeed));
+            // Role.FpcModule.IsGrounded = CharacterController.isGrounded;
+
+            Motor.ReceivedPosition = new RelativePosition(Core.Position + WishMoveDirection * (MoveSpeed * Time.fixedDeltaTime));
 
             if (CanOpenDoors && WishMoveDirection != Vector3.zero && Core.TryGetDoor(out DoorVariant door, out bool inVision) && inVision && Vector3.Angle(door.transform.position - Core.Position, WishMoveDirection) <= 45f)
                 Core.TrySetDoor(door, true);
@@ -78,7 +84,7 @@ namespace SwiftNPCs.Features.Components
         {
             CurrentLookRotation = Quaternion.RotateTowards(CurrentLookRotation, WishLookRotation, LookSpeed * Time.fixedDeltaTime);
             MouseLook.LookAtDirection(CurrentLookRotation * Vector3.forward);
-            Core.transform.rotation = CurrentLookRotation;
+            // Core.transform.rotation = CurrentLookRotation;
         }
     }
 }
