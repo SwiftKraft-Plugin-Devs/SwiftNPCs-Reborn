@@ -1,21 +1,18 @@
-﻿using CommandSystem.Commands.RemoteAdmin.Dummies;
-using LabApi.Events.Arguments.PlayerEvents;
+﻿using LabApi.Events.Arguments.PlayerEvents;
 using LabApi.Events.Handlers;
 using LabApi.Features.Wrappers;
 using Mirror;
 using NetworkManagerUtils.Dummies;
 using PlayerRoles;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace SwiftNPCs.Features
 {
     public class NPC
     {
-        public readonly NetworkConnection Connection;
         public readonly Player WrapperPlayer;
         public readonly NPCCore Core;
-        public ReferenceHub ReferenceHub => WrapperPlayer.ReferenceHub;
+        public readonly ReferenceHub ReferenceHub;
         public PlayerRoleBase RoleBase => WrapperPlayer.RoleBase;
 
         public bool Respawnable;
@@ -23,7 +20,7 @@ namespace SwiftNPCs.Features
         public NPC(Vector3 position, RoleTypeId role = RoleTypeId.Spectator, RoleSpawnFlags spawnFlags = RoleSpawnFlags.AssignInventory) : base()
         {
             ReferenceHub refHub = DummyUtils.SpawnDummy("Bot");
-            Connection = refHub.connectionToServer;
+            ReferenceHub = refHub;
             Player.TryGet(refHub.gameObject, out WrapperPlayer);
             NPCManager.AllNPCs.Add(this);
             PlayerEvents.Death += OnDeath;

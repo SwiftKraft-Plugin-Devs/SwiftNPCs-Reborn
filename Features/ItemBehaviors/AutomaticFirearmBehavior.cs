@@ -34,15 +34,6 @@ namespace SwiftNPCs.Features.ItemBehaviors
                 Ammo = mod2;
                 Logger.Info("Got ammo: " + mod2.GetType());
             }
-
-            ItemSerializedDummyAction act = Item.GetComponentInChildren<ItemSerializedDummyAction>();
-
-            DefinedAction[] actions = act.GetPrivateFieldValue<DefinedAction[]>(nameof(ItemSerializedDummyAction._actions));
-
-            foreach (DefinedAction action in actions)
-            {
-                Logger.Info(action.Name + " - " + action.Action);
-            }
         }
 
         public override void End() { }
