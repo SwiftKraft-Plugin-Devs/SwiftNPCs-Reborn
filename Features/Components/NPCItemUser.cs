@@ -42,11 +42,11 @@ namespace SwiftNPCs.Features.Components
             if (ev.Player != Core.NPC.WrapperPlayer)
                 return;
 
+            CurrentItemBehavior = ev.NewItem == null ? null : this.GetBehavior(ev.NewItem);
+
             List<DummyAction> list2 = DummyActionCollector.ServerGetActions(Core.NPC.ReferenceHub);
             foreach (DummyAction da in list2)
                 Logger.Info(da.Name + ": " + da.Action.Method.Name + ", " + da.Action.Target);
-
-            CurrentItemBehavior = ev.NewItem == null ? null : this.GetBehavior(ev.NewItem);
         }
     }
 }

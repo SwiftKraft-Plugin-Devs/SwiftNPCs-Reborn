@@ -20,7 +20,7 @@ namespace SwiftNPCs.Features
 
         public readonly List<NPCComponent> Components = [];
 
-        public Vector3 Position => NPC.WrapperPlayer.Position;
+        public Vector3 Position { get => NPC.Position; set => NPC.Position = value; }
 
         public TargetableBase Target;
 
@@ -54,6 +54,10 @@ namespace SwiftNPCs.Features
         public void Setup(NPC npc)
         {
             NPC = npc;
+        }
+
+        public void SetupComponents()
+        {
             Motor = AddNPCComponent<NPCMotor>();
             Pathfinder = AddNPCComponent<NPCPathfinder>();
             ItemUser = AddNPCComponent<NPCItemUser>();
