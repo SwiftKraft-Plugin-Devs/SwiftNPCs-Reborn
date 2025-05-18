@@ -1,9 +1,6 @@
 ﻿using LabApi.Events.Arguments.PlayerEvents;
 using LabApi.Events.Handlers;
-using LabApi.Features.Console;
-using NetworkManagerUtils.Dummies;
 using SwiftNPCs.Features.ItemBehaviors;
-using System.Collections.Generic;
 
 namespace SwiftNPCs.Features.Components
 {
@@ -43,10 +40,6 @@ namespace SwiftNPCs.Features.Components
                 return;
 
             CurrentItemBehavior = ev.NewItem == null ? null : this.GetBehavior(ev.NewItem);
-
-            List<DummyAction> list2 = DummyActionCollector.ServerGetActions(Core.NPC.ReferenceHub);
-            foreach (DummyAction da in list2)
-                Logger.Info(da.Name + ": " + da.Action.Method.Name + ", " + da.Action.Target);
         }
     }
 }

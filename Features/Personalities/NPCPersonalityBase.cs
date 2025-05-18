@@ -18,12 +18,27 @@ namespace SwiftNPCs.Features.Personalities
         public bool HasWeapon => GetWeapon(out _, out _);
         public bool IsThreat => IsMilitant || IsArmed || WrapperPlayer.IsSCP;
 
-        public bool GetWeapon(out ItemBase item, out ushort slot) => Core.Inventory.HasItem(out item, out slot, ItemCategory.Firearm, ItemCategory.SpecialWeapon, ItemCategory.Grenade);
-        
-        public bool GetMedical(out ItemBase item, out ushort slot) => 
-            Core.Inventory.HasItem(ItemCategory.Medical, out item, out slot)
-            || Core.Inventory.HasItem(ItemCategory.SCPItem, out item, out slot) 
+        public bool GetWeapon(out ItemBase item, out ushort slot)
+        {
+            if (Core.Inventory != null)
+                return Core.Inventory.HasItem(out item, out slot, ItemCategory.Firearm, ItemCategory.SpecialWeapon, ItemCategory.Grenade);
+
+            item = null;
+            slot = 0;
+            return false;
+        }
+
+        public bool GetMedical(out ItemBase item, out ushort slot)
+        {
+            if (Core.Inventory != null)
+                return Core.Inventory.HasItem(ItemCategory.Medical, out item, out slot)
+            || Core.Inventory.HasItem(ItemCategory.SCPItem, out item, out slot)
             && item.ItemTypeId == ItemType.SCP500;
+
+            item = null; 
+            slot = 0; 
+            return false;
+        }
 
         public virtual void Init(NPCCore core) => Core = core;
         public abstract void Begin();

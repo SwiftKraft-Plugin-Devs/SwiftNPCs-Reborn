@@ -58,11 +58,11 @@ namespace SwiftNPCs.Features
 
         public void SetupComponents()
         {
+            Inventory = AddNPCComponent<NPCInventory>();
             Motor = AddNPCComponent<NPCMotor>();
             Pathfinder = AddNPCComponent<NPCPathfinder>();
             ItemUser = AddNPCComponent<NPCItemUser>();
             Scanner = AddNPCComponent<NPCScanner>();
-            Inventory = AddNPCComponent<NPCInventory>();
         }
 
         public void RemovePersonality()
