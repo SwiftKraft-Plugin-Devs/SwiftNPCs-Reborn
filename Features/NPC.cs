@@ -13,8 +13,8 @@ namespace SwiftNPCs.Features
 {
     public class NPC
     {
-        public readonly NPCCore Core;
-        public readonly ReferenceHub ReferenceHub;
+        public NPCCore Core { get; private set; }
+        public ReferenceHub ReferenceHub { get; private set; }
         public Player WrapperPlayer => Player.Get(ReferenceHub);
         public PlayerRoleBase RoleBase => ReferenceHub.roleManager.CurrentRole;
 
@@ -49,7 +49,13 @@ namespace SwiftNPCs.Features
             PlayerEvents.Death += OnDeath;
             Core = refHub.gameObject.AddComponent<NPCCore>();
             Core.Setup(this);
-            Timing.CallDelayed(0.25f, () => { ReferenceHub.roleManager.ServerSetRole(role, RoleChangeReason.LateJoin, spawnFlags); Core.Position = position; Core.SetupComponents(); });
+            Timing.CallDelayed(0.25f, () =>
+            {
+                ReferenceHub.roleManager.ServerSetRole(role, RoleChangeReason.LateJoin, spawnFlags);
+                Core.Position = position; 
+                Core.SetupComponents();
+
+            });
         }
 
         public virtual void Destroy()

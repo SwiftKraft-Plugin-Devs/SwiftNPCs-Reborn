@@ -1,6 +1,4 @@
-﻿using CommandSystem.Commands.RemoteAdmin.Dummies;
-using InventorySystem.Items.Firearms.Modules;
-using System;
+﻿using InventorySystem.Items.Firearms.Modules;
 using UnityEngine;
 using Logger = LabApi.Features.Console.Logger;
 
@@ -17,23 +15,15 @@ namespace SwiftNPCs.Features.ItemBehaviors
         private readonly Timer curTimer = new(0f);
         private readonly Timer reloadTimer = new(0f);
 
-        bool startingReload;
-
         public override void Begin()
         {
             base.Begin();
             curTimer.MaxTime = 1f / Module.DisplayCyclicRate;
 
             if (Item.TryGetModule(out AnimatorReloaderModuleBase mod1, false))
-            {
                 Reloader = mod1;
-                Logger.Info("Got reloader: " + mod1.GetType());
-            }
             if (Item.TryGetModule(out IPrimaryAmmoContainerModule mod2))
-            {
                 Ammo = mod2;
-                Logger.Info("Got ammo: " + mod2.GetType());
-            }
         }
 
         public override void End() { }
@@ -42,7 +32,7 @@ namespace SwiftNPCs.Features.ItemBehaviors
         {
             curTimer.Tick(Time.fixedDeltaTime);
 
-            if (User.Core.HasTarget && User.Core.Scanner.HasLOS(User.Core.Target, out Vector3 sight))
+            if (!Reloader.IsReloading && User.Core.HasTarget && User.Core.Scanner.HasLOS(User.Core.Target, out Vector3 sight))
             {
                 User.Core.Motor.WishLookPosition = sight;
                 Shoot();
@@ -50,8 +40,6 @@ namespace SwiftNPCs.Features.ItemBehaviors
 
             if (Ammo.AmmoStored <= 0)
                 Reload();
-            else
-                startingReload = false;
         }
 
         public override void Shoot()
@@ -65,30 +53,10 @@ namespace SwiftNPCs.Features.ItemBehaviors
 
         public override void Reload()
         {
-            if (Reloader.IsReloading || startingReload)
+            if (Reloader.IsReloading)
                 return;
 
-            Logger.Info($"Reloading {Reloader}");
-
-            Logger.Info("Before");
-            foreach (var mod in Item.DummyEmulator._activeEntries)
-                Logger.Info(mod.Action);
-
-            try
-            {
-                Item.DummyEmulator.AddEntry(ActionName.Reload, true);
-                Item.DummyEmulator.LateUpdate();
-            }
-            catch (Exception e)
-            {
-                Logger.Info(e.StackTrace);
-            }
-
-            Logger.Info("After");
-            foreach (var mod in Item.DummyEmulator._activeEntries)
-                Logger.Info(mod.Action);
-
-            startingReload = true;
+            Item.DummyEmulator.AddEntry(ActionName.Reload, true);
         }
     }
 }
