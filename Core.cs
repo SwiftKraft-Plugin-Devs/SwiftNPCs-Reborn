@@ -45,7 +45,7 @@ namespace SwiftNPCs
             NPCParentCommand.SetPrompt();
 
             ServerEvents.MapGenerated += MapGenerated;
-            PlayerEvents.ShotWeapon += OnPlayerShotWeapon;
+            //PlayerEvents.ShotWeapon += OnPlayerShotWeapon;
         }
 
         private void MapGenerated(MapGeneratedEventArgs ev)
@@ -101,7 +101,7 @@ namespace SwiftNPCs
 
             NPCManager.RemoveAll();
             ServerEvents.MapGenerated -= MapGenerated;
-            PlayerEvents.ShotWeapon -= OnPlayerShotWeapon;
+            //PlayerEvents.ShotWeapon -= OnPlayerShotWeapon;
         }
     }
 

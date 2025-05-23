@@ -1,5 +1,7 @@
 ﻿using InventorySystem.Items.Firearms.Modules;
+using LabApi.Features.Console;
 using UnityEngine;
+using Logger = LabApi.Features.Console.Logger;
 
 namespace SwiftNPCs.Features.ItemBehaviors
 {
@@ -9,7 +11,9 @@ namespace SwiftNPCs.Features.ItemBehaviors
         public IReloaderModule Reloader { get; private set; }
         public IPrimaryAmmoContainerModule Ammo { get; private set; }
 
-        public bool CanShoot => !Item.AnyModuleBusy(Module) && Module.Cocked && !Module.BoltLocked;
+        public bool CanShoot = true;
+
+        readonly Timer tacticalReloadTimer = new(4f);
 
         public override void Begin()
         {
@@ -23,10 +27,25 @@ namespace SwiftNPCs.Features.ItemBehaviors
 
         public override void Tick()
         {
-            if (!Reloader.IsReloading && User.Core.HasTarget && User.Core.Scanner.HasLOS(User.Core.Target, out Vector3 sight))
+            if (!Reloader.IsReloading)
             {
-                User.Core.Motor.WishLookPosition = sight;
-                Shoot();
+                if (User.Core.HasTarget && User.Core.Scanner.HasLOS(User.Core.Target, out Vector3 sight))
+                {
+                    User.Core.Motor.WishLookPosition = sight;
+                    Shoot();
+
+                    tacticalReloadTimer.Reset();
+                }
+                else if (Ammo.AmmoStored < Ammo.AmmoMax)
+                {
+                    tacticalReloadTimer.Tick(Time.fixedDeltaTime);
+
+                    if (tacticalReloadTimer.Ended)
+                    {
+                        tacticalReloadTimer.Reset();
+                        Reload();
+                    }
+                }
             }
 
             if (Ammo.AmmoStored <= 0)
@@ -35,10 +54,10 @@ namespace SwiftNPCs.Features.ItemBehaviors
 
         public override void Shoot()
         {
-            if (!CanShoot || Item.PrimaryActionBlocked)
+            if (!CanShoot)
                 return;
 
-            Item.DummyEmulator.AddEntry(ActionName.Shoot, true);
+            Item.DummyEmulator.AddEntry(ActionName.Shoot, false);
         }
 
         public override void Reload()

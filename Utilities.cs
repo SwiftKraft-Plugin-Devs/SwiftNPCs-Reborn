@@ -1,5 +1,4 @@
-﻿using InventorySystem.Items.Autosync;
-using PlayerRoles;
+﻿using PlayerRoles;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -60,8 +59,8 @@ namespace SwiftNPCs
 
         public bool Ended => CurrentTime <= 0f;
 
-        public Timer(float time) 
-        { 
+        public Timer(float time)
+        {
             MaxTime = time;
             CurrentTime = MaxTime;
         }
