@@ -13,8 +13,6 @@ namespace SwiftNPCs.Features.ItemBehaviors
 
         public override void Begin()
         {
-            base.Begin();
-
             if (Item.TryGetModule(out IReloaderModule mod1))
                 Reloader = mod1;
             if (Item.TryGetModule(out IPrimaryAmmoContainerModule mod2))

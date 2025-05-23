@@ -5,9 +5,12 @@ namespace SwiftNPCs.Features.ItemBehaviors
 {
     public abstract class FirearmBehaviorBase<T> : ItemBehaviorBase<Firearm> where T : ModuleBase
     {
-        public AutomaticActionModule Module;
-
-        public override void Begin() => Item.TryGetModule(out Module);
+        public T Module { get; private set; }
+        public override void Begin()
+        {
+            if (Item.TryGetModule(out T mod0))
+                Module = mod0;
+        }
 
         public abstract void Shoot();
 
