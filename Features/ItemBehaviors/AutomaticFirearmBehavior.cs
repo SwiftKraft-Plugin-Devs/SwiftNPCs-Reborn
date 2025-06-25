@@ -13,7 +13,24 @@ namespace SwiftNPCs.Features.ItemBehaviors
 
         public bool CanShoot = true;
 
+        public bool Attacking
+        {
+            get => attacking;
+            set
+            {
+                if (attacking == value)
+                    return;
+
+                attacking = value;
+                if (attacking)
+                    Item.DummyEmulator.AddEntry(ActionName.Shoot, false);
+                else
+                    Item.DummyEmulator.RemoveEntry(ActionName.Shoot);
+            }
+        }
+
         readonly Timer tacticalReloadTimer = new(4f);
+        private bool attacking;
 
         public override void Begin()
         {
@@ -46,6 +63,8 @@ namespace SwiftNPCs.Features.ItemBehaviors
                         Reload();
                     }
                 }
+                else
+                    Attacking = false;
             }
 
             if (Ammo.AmmoStored <= 0)
@@ -57,7 +76,7 @@ namespace SwiftNPCs.Features.ItemBehaviors
             if (!CanShoot)
                 return;
 
-            Item.DummyEmulator.AddEntry(ActionName.Shoot, false);
+            Attacking = true;
         }
 
         public override void Reload()
@@ -65,6 +84,7 @@ namespace SwiftNPCs.Features.ItemBehaviors
             if (Reloader.IsReloading)
                 return;
 
+            Attacking = false;
             Item.DummyEmulator.AddEntry(ActionName.Reload, true);
         }
     }
