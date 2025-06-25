@@ -29,7 +29,7 @@ namespace SwiftNPCs.Features.ItemBehaviors
             }
         }
 
-        readonly Timer tacticalReloadTimer = new(4f);
+        private readonly Timer tacticalReloadTimer = new(4f);
         private bool attacking;
 
         public override void Begin()
