@@ -46,14 +46,17 @@ namespace SwiftNPCs.Features.ItemBehaviors
         {
             if (!Reloader.IsReloading)
             {
-                if (User.Core.HasTarget && User.Core.Scanner.HasLOS(User.Core.Target, out Vector3 sight))
+                if (User.Core.HasTarget && User.Core.Scanner.HasLOS(User.Core.Target, out Vector3 sight, true))
                 {
                     User.Core.Motor.WishLookPosition = sight;
                     Shoot();
 
                     tacticalReloadTimer.Reset();
                 }
-                else if (Ammo.AmmoStored < Ammo.AmmoMax)
+                else
+                    Attacking = false;
+
+                if (Ammo.AmmoStored < Ammo.AmmoMax)
                 {
                     tacticalReloadTimer.Tick(Time.fixedDeltaTime);
 
@@ -63,8 +66,6 @@ namespace SwiftNPCs.Features.ItemBehaviors
                         Reload();
                     }
                 }
-                else
-                    Attacking = false;
             }
 
             if (Ammo.AmmoStored <= 0)

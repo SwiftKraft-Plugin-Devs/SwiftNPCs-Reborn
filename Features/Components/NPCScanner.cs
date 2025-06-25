@@ -8,6 +8,7 @@ namespace SwiftNPCs.Features.Components
     public class NPCScanner : NPCComponent
     {
         public static LayerMask SightLayers = LayerMask.GetMask("Default", "Door");
+        public static LayerMask CollisionLayers = LayerMask.GetMask("Default", "Glass", "Door");
 
         public float FacilityRange = 40f;
         public float SurfaceRange = 70f;
@@ -38,14 +39,14 @@ namespace SwiftNPCs.Features.Components
                     Core.Target = new TargetablePlayer(player);
         }
 
-        public bool HasLOS(Player player, out Vector3 sight) => CheckLOS(Core.NPC.WrapperPlayer.Camera.position, out sight, player.Camera.position, player.Position);
+        public bool HasLOS(Player player, out Vector3 sight, bool collision = false) => CheckLOS(Core.NPC.WrapperPlayer.Camera.position, out sight, collision, player.Camera.position, player.Position);
 
-        public bool HasLOS(TargetableBase t, out Vector3 sight) => CheckLOS(Core.NPC.WrapperPlayer.Camera.position, out sight, t.CriticalPosition, t.HitPosition);
+        public bool HasLOS(TargetableBase t, out Vector3 sight, bool collision = false) => CheckLOS(Core.NPC.WrapperPlayer.Camera.position, out sight, collision, t.CriticalPosition, t.HitPosition);
 
-        public static bool CheckLOS(Vector3 cam, out Vector3 sight, params Vector3[] others)
+        public static bool CheckLOS(Vector3 cam, out Vector3 sight, bool collision = false, params Vector3[] others)
         {
             foreach (Vector3 pos in others)
-                if (!Physics.Linecast(cam, pos, SightLayers, QueryTriggerInteraction.Ignore))
+                if (!Physics.Linecast(cam, pos, collision ? CollisionLayers : SightLayers, QueryTriggerInteraction.Ignore))
                 {
                     sight = pos;
                     return true;

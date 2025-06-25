@@ -49,12 +49,11 @@ namespace SwiftNPCs.Features
             PlayerEvents.Death += OnDeath;
             Core = refHub.gameObject.AddComponent<NPCCore>();
             Core.Setup(this);
-            Timing.CallDelayed(0.25f, () =>
+            Timing.CallDelayed(0.05f, () =>
             {
                 ReferenceHub.roleManager.ServerSetRole(role, RoleChangeReason.LateJoin, spawnFlags);
                 Core.Position = position; 
                 Core.SetupComponents();
-
             });
         }
 
