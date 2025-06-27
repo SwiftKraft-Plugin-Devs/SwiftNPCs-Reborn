@@ -1,4 +1,7 @@
 ﻿using InventorySystem.Items;
+using LabApi.Features.Wrappers;
+using SwiftNPCs.Utils.Extensions;
+using System.Linq;
 using UnityEngine;
 
 namespace SwiftNPCs.Features.Personalities
@@ -21,13 +24,20 @@ namespace SwiftNPCs.Features.Personalities
             {
                 TargetLastPosition = Core.Target.HitPosition;
                 chasing = false;
-                if ((Core.Pathfinder.Destination - Core.Position).sqrMagnitude > 9f)
+                if ((Core.Pathfinder.Destination - Core.Position).sqrMagnitude > 4f)
                     Core.Pathfinder.Destination = Core.Position;
             }
-            else if (CanChase && (TargetLastPosition - Core.Position).sqrMagnitude > 9f && Core.Pathfinder.RealDestination != TargetLastPosition)
+            else if (CanChase && (TargetLastPosition - Core.Position).sqrMagnitude > 4f && Core.Pathfinder.RealDestination != TargetLastPosition)
             {
                 Core.Pathfinder.Destination = TargetLastPosition;
                 chasing = true;
+            }
+
+            if (!Core.HasTarget && !chasing && Core.Pathfinder.IsAtDestination)
+            {
+                Room r = Room.List.Where((r) => r != null && r.Base != null && !r.IsDestroyed && r.Zone == Core.NPC.WrapperPlayer.Zone).ToList().GetRandom();
+                if (r != null)
+                    Core.Pathfinder.Destination = r.Transform.position;
             }
 
             if (GetWeapon(out ItemBase item, out _))

@@ -1,12 +1,10 @@
 ﻿using InventorySystem.Items.Firearms.Modules;
-using LabApi.Features.Console;
 using UnityEngine;
-using Logger = LabApi.Features.Console.Logger;
 
 namespace SwiftNPCs.Features.ItemBehaviors
 {
-    [ItemBehavior(ItemType.GunA7, ItemType.GunAK, ItemType.GunCom45, ItemType.GunCOM15, ItemType.GunCOM18, ItemType.GunFSP9, ItemType.GunE11SR, ItemType.GunLogicer, ItemType.GunFRMG0, ItemType.GunCrossvec)]
-    public class AutomaticFirearmBehavior : FirearmBehaviorBase<AutomaticActionModule>
+    [ItemBehavior(ItemType.GunA7, ItemType.GunAK, ItemType.GunCom45, ItemType.GunCOM15, ItemType.GunCOM18, ItemType.GunFSP9, ItemType.GunE11SR, ItemType.GunLogicer, ItemType.GunFRMG0, ItemType.GunCrossvec, ItemType.GunRevolver)]
+    public class FirearmAttackBehavior : FirearmBehaviorBase
     {
         public IReloaderModule Reloader { get; private set; }
         public IPrimaryAmmoContainerModule Ammo { get; private set; }

@@ -32,14 +32,22 @@ namespace SwiftNPCs.Features
 
         public bool HasTarget => Target != null;
 
+        public bool Initialized { get; private set; }
+
         protected virtual void Update()
         {
+            if (!Initialized)
+                return;
+
             foreach (NPCComponent component in Components)
                 component.Frame();
         }
 
         protected virtual void FixedUpdate()
         {
+            if (!Initialized)
+                return;
+
             foreach (NPCComponent component in Components)
                 component.Tick();
             Personality?.Tick();
@@ -63,6 +71,7 @@ namespace SwiftNPCs.Features
             Pathfinder = AddNPCComponent<NPCPathfinder>();
             ItemUser = AddNPCComponent<NPCItemUser>();
             Scanner = AddNPCComponent<NPCScanner>();
+            Initialized = true;
         }
 
         public void RemovePersonality()
