@@ -20,6 +20,25 @@ namespace SwiftNPCs.Features.Personalities
 
         public override void Tick()
         {
+            CheckTargetLoop();
+
+            WanderLoop();
+
+            WeaponLoop();
+        }
+
+        private void WanderLoop()
+        {
+            if (!Core.HasTarget && !chasing && Core.Pathfinder.IsAtDestination)
+            {
+                Room r = Room.List.Where((r) => r != null && r.Base != null && !r.IsDestroyed && r.Zone == Core.NPC.WrapperPlayer.Zone).ToList().GetRandom();
+                if (r != null)
+                    Core.Pathfinder.Destination = r.Transform.position;
+            }
+        }
+
+        private void CheckTargetLoop()
+        {
             if (Core.HasTarget)
             {
                 TargetLastPosition = Core.Target.HitPosition;
@@ -33,13 +52,12 @@ namespace SwiftNPCs.Features.Personalities
                 chasing = true;
             }
 
-            if (!Core.HasTarget && !chasing && Core.Pathfinder.IsAtDestination)
-            {
-                Room r = Room.List.Where((r) => r != null && r.Base != null && !r.IsDestroyed && r.Zone == Core.NPC.WrapperPlayer.Zone).ToList().GetRandom();
-                if (r != null)
-                    Core.Pathfinder.Destination = r.Transform.position;
-            }
+            if (chasing && Core.Pathfinder.IsAtDestination)
+                chasing = false;
+        }
 
+        private void WeaponLoop()
+        {
             if (GetWeapon(out ItemBase item, out _))
             {
                 if (!IsArmed && (IsThreat || Core.HasTarget))
