@@ -11,7 +11,7 @@ namespace SwiftNPCs.Features.Components
 
         public bool LookAtWaypoint = true;
 
-        public float DestinationRange = 3f;
+        public float DestinationRange = 1f;
 
         public Vector3 Destination
         {
@@ -32,6 +32,8 @@ namespace SwiftNPCs.Features.Components
         public NPCPath Path { get; private set; }
 
         public bool IsAtDestination { get; private set; }
+
+        public void Stop() => Destination = Core.Position;
 
         public override void Begin()
         {

@@ -1,6 +1,7 @@
 ﻿using LabApi.Features.Wrappers;
 using PlayerRoles;
 using SwiftNPCs.Features.Targettables;
+using SwiftNPCs.Utils.Structures;
 using UnityEngine;
 
 namespace SwiftNPCs.Features.Components

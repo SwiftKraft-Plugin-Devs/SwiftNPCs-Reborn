@@ -1,6 +1,7 @@
 ﻿using InventorySystem.Items;
 using LabApi.Features.Wrappers;
 using SwiftNPCs.Utils.Extensions;
+using SwiftNPCs.Utils.Structures;
 using System.Linq;
 using UnityEngine;
 
@@ -12,6 +13,15 @@ namespace SwiftNPCs.Features.Personalities
 
         public bool CanChase = true;
 
+        public float MaxWanderTimer = 20f;
+        public float MinWanderTimer = 10f;
+
+        public float MaxWaitTimer = 3f;
+        public float MinWaitTimer = 1f;
+
+        readonly Timer wanderTimer = new(15f);
+        readonly Timer waitTimer = new(1f);
+
         bool chasing;
 
         public override void Begin() => TargetLastPosition = Core.Position;
@@ -20,7 +30,7 @@ namespace SwiftNPCs.Features.Personalities
 
         public override void Tick()
         {
-            CheckTargetLoop();
+            //CheckTargetLoop();
 
             WanderLoop();
 
@@ -29,11 +39,25 @@ namespace SwiftNPCs.Features.Personalities
 
         private void WanderLoop()
         {
-            if (!Core.HasTarget && !chasing && Core.Pathfinder.IsAtDestination)
+            wanderTimer.Tick(Time.fixedDeltaTime);
+
+            if (!Core.HasTarget && !chasing && (Core.Pathfinder.IsAtDestination || wanderTimer.Ended))
             {
-                Room r = Room.List.Where((r) => r != null && r.Base != null && !r.IsDestroyed && r.Zone == Core.NPC.WrapperPlayer.Zone).ToList().GetRandom();
-                if (r != null)
-                    Core.Pathfinder.Destination = r.Transform.position;
+                waitTimer.Tick(Time.fixedDeltaTime);
+
+                if (!Core.Pathfinder.IsAtDestination)
+                    Core.Pathfinder.Stop();
+
+                if (waitTimer.Ended)
+                {
+                    Room r = Room.List.Where((r) => r != null && r.Base != null && !r.IsDestroyed && r.Zone == Core.NPC.WrapperPlayer.Zone).ToList().GetRandom();
+                    if (r != null)
+                    {
+                        Core.Pathfinder.Destination = r.Transform.position + Random.insideUnitSphere * 4f;
+                        wanderTimer.Reset(Random.Range(MinWanderTimer, MaxWanderTimer));
+                        waitTimer.Reset(Random.Range(MinWaitTimer, MaxWaitTimer));
+                    }
+                }
             }
         }
 

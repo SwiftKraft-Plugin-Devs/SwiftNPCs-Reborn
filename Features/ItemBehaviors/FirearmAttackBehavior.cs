@@ -1,4 +1,5 @@
 ﻿using InventorySystem.Items.Firearms.Modules;
+using SwiftNPCs.Utils.Structures;
 using UnityEngine;
 
 namespace SwiftNPCs.Features.ItemBehaviors
