@@ -12,11 +12,11 @@ namespace SwiftNPCs.Features.Personalities
 
         public Player WrapperPlayer => Core.NPC.WrapperPlayer;
 
-        public bool IsMilitant => Role.GetTeam() == Team.FoundationForces || Role.GetTeam() == Team.ChaosInsurgency;
-        public bool IsCivilian => Role.GetTeam() == Team.ClassD || Role.GetTeam() == Team.Scientists;
-        public bool IsArmed => Core.Inventory.CurrentItem != null && (Core.Inventory.CurrentItem.Category == ItemCategory.Firearm || Core.Inventory.CurrentItem.Category == ItemCategory.SpecialWeapon || Core.Inventory.CurrentItem.Category == ItemCategory.Grenade);
-        public bool HasWeapon => GetWeapon(out _, out _);
-        public bool IsThreat => IsMilitant || IsArmed || WrapperPlayer.IsSCP;
+        public virtual bool IsMilitant => Role.GetTeam() == Team.FoundationForces || Role.GetTeam() == Team.ChaosInsurgency;
+        public virtual bool IsCivilian => Role.GetTeam() == Team.ClassD || Role.GetTeam() == Team.Scientists;
+        public virtual bool IsArmed => Core.Inventory.CurrentItem != null && (Core.Inventory.CurrentItem.Category == ItemCategory.Firearm || Core.Inventory.CurrentItem.Category == ItemCategory.SpecialWeapon || Core.Inventory.CurrentItem.Category == ItemCategory.Grenade);
+        public virtual bool IsCarryingWeapon => GetWeapon(out _, out _);
+        public virtual bool IsThreat => (IsMilitant || IsArmed || WrapperPlayer.IsSCP) && !WrapperPlayer.IsDisarmed;
 
         public bool GetWeapon(out ItemBase item, out ushort slot)
         {

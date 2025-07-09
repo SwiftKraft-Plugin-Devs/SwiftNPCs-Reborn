@@ -1,6 +1,7 @@
 ﻿using Interactables.Interobjects.DoorUtils;
 using PlayerRoles.FirstPersonControl;
 using RelativePositioning;
+using SwiftNPCs.Utils.Extensions;
 using UnityEngine;
 
 namespace SwiftNPCs.Features.Components
@@ -40,10 +41,12 @@ namespace SwiftNPCs.Features.Components
         public FpcMotor Motor { get; protected set; }
         public FpcMouseLook MouseLook { get; protected set; }
 
-        public float LookSpeed = 400f;
+        public float LookTime = 0.5f;
         public float MoveSpeed = 30f;
 
         public bool CanOpenDoors = true;
+
+        Vector3 lookVel;
 
         public override void Begin()
         {
@@ -76,7 +79,7 @@ namespace SwiftNPCs.Features.Components
 
         public virtual void Look()
         {
-            CurrentLookRotation = Quaternion.RotateTowards(CurrentLookRotation, WishLookRotation, LookSpeed * Time.fixedDeltaTime);
+            CurrentLookRotation = CurrentLookRotation.SmoothDamp(WishLookRotation, ref lookVel, LookTime);
             MouseLook.LookAtDirection(CurrentLookRotation * Vector3.forward);
         }
     }

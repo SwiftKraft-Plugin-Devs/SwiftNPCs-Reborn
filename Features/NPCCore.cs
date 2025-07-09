@@ -14,15 +14,27 @@ namespace SwiftNPCs.Features
         public const float InteractionDistance = 3f;
         public const float DoorDotMinimum = 0.1f;
 
+        public readonly Dictionary<string, object> Data = [];
+
         public NPCPersonalityBase Personality { get; private set; }
 
         public NPC NPC { get; private set; }
 
         public readonly List<NPCComponent> Components = [];
-
+        
         public Vector3 Position { get => NPC.Position; set => NPC.Position = value; }
 
-        public TargetableBase Target;
+        public TargetableBase Target
+        {
+            get
+            {
+                if (_target != null && !_target.CanTarget)
+                    _target = null;
+                return _target;
+            }
+            set => _target = value;
+        }
+        private TargetableBase _target;
 
         public NPCMotor Motor { get; private set; }
         public NPCPathfinder Pathfinder { get; private set; }
@@ -59,10 +71,36 @@ namespace SwiftNPCs.Features
                 component.Close();
         }
 
-        public void Setup(NPC npc)
+        public bool TryRemoveData(string id) => Data.Remove(id);
+
+        public bool TryAddData<T>(string id, out T data) where T : new()
         {
-            NPC = npc;
+            if (Data.ContainsKey(id))
+            {
+                data = default;
+                return false;
+            }
+
+            data = new();
+            Data.Add(id, data);
+            return true;
         }
+
+        public bool TryGetData<T>(string id, out T data)
+        {
+            if (Data.ContainsKey(id) && Data[id] is T t)
+            {
+                data = t;
+                return true;
+            }
+            else
+            {
+                data = default;
+                return false;
+            }
+        }
+
+        public void Setup(NPC npc) => NPC = npc;
 
         public void SetupComponents()
         {
@@ -71,6 +109,7 @@ namespace SwiftNPCs.Features
             Pathfinder = AddNPCComponent<NPCPathfinder>();
             ItemUser = AddNPCComponent<NPCItemUser>();
             Scanner = AddNPCComponent<NPCScanner>();
+
             Initialized = true;
         }
 

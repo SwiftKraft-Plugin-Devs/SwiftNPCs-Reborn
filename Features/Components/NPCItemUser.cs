@@ -39,7 +39,7 @@ namespace SwiftNPCs.Features.Components
             if (ev.Player != Core.NPC.WrapperPlayer)
                 return;
 
-            CurrentItemBehavior = ev.NewItem == null ? null : this.GetBehavior(ev.NewItem);
+            CurrentItemBehavior = ev.NewItem == null ? null : this.GetRandomBehavior(ev.NewItem);
         }
     }
 }

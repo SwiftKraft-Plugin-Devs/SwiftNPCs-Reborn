@@ -76,11 +76,10 @@ namespace SwiftNPCs
 
             NavMeshBuildSettings settings = NavMeshSurface.GetBuildSettings();
 
-            settings.agentClimb = 0.25f;
-            settings.agentHeight = 1.5f;
-            settings.agentSlope = 66f;
-            settings.agentRadius = 0.1f;
-            settings.minRegionArea = 0.2f;
+            settings.agentClimb = 0.21f;
+            settings.agentHeight = 0.83f;
+            settings.agentSlope = 45f;
+            settings.agentRadius = 0.17f;
 
             NavMeshSurface.buildHeightMesh = true;
             NavMeshSurface.useGeometry = NavMeshCollectGeometry.PhysicsColliders;

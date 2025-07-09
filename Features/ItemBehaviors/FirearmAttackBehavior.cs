@@ -22,9 +22,15 @@ namespace SwiftNPCs.Features.ItemBehaviors
 
                 attacking = value;
                 if (attacking)
+                {
                     Item.DummyEmulator.AddEntry(ActionName.Shoot, false);
+                    Item.DummyEmulator.AddEntry(ActionName.Zoom, false);
+                }
                 else
+                {
                     Item.DummyEmulator.RemoveEntry(ActionName.Shoot);
+                    Item.DummyEmulator.RemoveEntry(ActionName.Zoom);
+                }
             }
         }
 

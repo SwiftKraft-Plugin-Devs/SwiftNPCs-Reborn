@@ -53,7 +53,7 @@ namespace SwiftNPCs.Features.ItemBehaviors
 
     public static class ItemBehaviorExtensions
     {
-        public static ItemBehaviorBase GetBehavior(this NPCItemUser user, ItemBase item)
+        public static ItemBehaviorBase GetRandomBehavior(this NPCItemUser user, ItemBase item)
         {
             if (user == null || item == null || !ItemBehaviorBase.CorrespondingItemBehaviors.TryGetValue(item.ItemTypeId, out List<Type> types))
                 return null;
@@ -64,6 +64,6 @@ namespace SwiftNPCs.Features.ItemBehaviors
             return bb;
         }
 
-        public static ItemBehaviorBase GetBehavior(this NPCItemUser user, Item item) => item == null ? null : user.GetBehavior(item.Base);
+        public static ItemBehaviorBase GetRandomBehavior(this NPCItemUser user, Item item) => item == null ? null : user.GetRandomBehavior(item.Base);
     }
 }

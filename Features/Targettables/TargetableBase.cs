@@ -8,6 +8,8 @@ namespace SwiftNPCs.Features.Targettables
     {
         public NPCCore NPC { get; set; }
 
+        public virtual bool CanTarget => true;
+
         public virtual float PriorityScore => Priority * PriorityWeight + Distance * DistanceWeight;
 
         public virtual float PriorityWeight => 5f;
