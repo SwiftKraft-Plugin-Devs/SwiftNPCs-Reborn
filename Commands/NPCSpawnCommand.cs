@@ -37,7 +37,7 @@ namespace SwiftNPCs.Commands
             }
 
             NPC npc = new(p.Position, role);
-            npc.Core.SetPersonality<NPCPersonalityHumanCombat>();
+            npc.Core.SetPersonality<NPCPersonalityWanderHuman>();
 
             response = "Spawned " + role + " NPC at " + p.Position;
             return true;

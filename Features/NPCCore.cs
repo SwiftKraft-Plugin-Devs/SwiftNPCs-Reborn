@@ -16,7 +16,8 @@ namespace SwiftNPCs.Features
 
         public readonly Dictionary<string, object> Data = [];
 
-        public NPCPersonalityBase Personality { get; private set; }
+        public NPCPersonalityBase PreviousPersonality { get; private set; }
+        public NPCPersonalityBase CurrentPersonality { get; private set; }
 
         public NPC NPC { get; private set; }
 
@@ -62,7 +63,7 @@ namespace SwiftNPCs.Features
 
             foreach (NPCComponent component in Components)
                 component.Tick();
-            Personality?.Tick();
+            CurrentPersonality?.Tick();
         }
 
         protected virtual void OnDestroy()
@@ -115,8 +116,9 @@ namespace SwiftNPCs.Features
 
         public void RemovePersonality()
         {
-            Personality?.End();
-            Personality = null;
+            CurrentPersonality?.End();
+            PreviousPersonality = CurrentPersonality;
+            CurrentPersonality = null;
         }
 
         public void SetPersonality(NPCPersonalityBase personality)
@@ -128,8 +130,9 @@ namespace SwiftNPCs.Features
             }
 
             personality.Init(this);
-            Personality?.End();
-            Personality = personality;
+            CurrentPersonality?.End();
+            PreviousPersonality = CurrentPersonality;
+            CurrentPersonality = personality;
             personality.Begin();
         }
 

@@ -5,7 +5,7 @@ namespace SwiftNPCs.Features.Personalities
 {
     public class NPCPersonalityHumanCombat : NPCPersonalityBase
     {
-        public NPCPersonalityBase ExitPersonality => new NPCPersonalityWanderHuman();
+        public virtual NPCPersonalityBase ExitPersonality => Core.PreviousPersonality;
 
         public Vector3 TargetLastPosition { get; set; }
 

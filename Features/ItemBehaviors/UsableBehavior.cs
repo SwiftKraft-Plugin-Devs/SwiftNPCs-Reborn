@@ -12,7 +12,7 @@ namespace SwiftNPCs.Features.ItemBehaviors
 
         public override void Tick()
         {
-            if (!started && Item.CanStartUsing)
+            if (!started && Item.CanStartUsing && !Item.IsUsing)
             {
                 StartUsing();
                 started = true;

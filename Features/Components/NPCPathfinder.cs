@@ -1,5 +1,4 @@
-﻿using LabApi.Features.Wrappers;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -18,6 +17,13 @@ namespace SwiftNPCs.Features.Components
             get => _destination;
             set
             {
+                if (value == Core.Position)
+                {
+                    _realDestination = value;
+                    _destination = value;
+                    return;
+                }
+
                 _realDestination = value;
                 _destination = !NavMesh.SamplePosition(value, out NavMeshHit hit, 10f, NavMesh.AllAreas) ? value : hit.position;
             }
@@ -34,6 +40,16 @@ namespace SwiftNPCs.Features.Components
         public bool IsAtDestination { get; private set; }
 
         public void Stop() => Destination = Core.Position;
+
+        public bool TrySetDestination(Vector3 destination, out Vector3 point)
+        {
+            bool notOnNavMesh = !NavMesh.SamplePosition(destination, out NavMeshHit hit, 10f, NavMesh.AllAreas);
+
+            point = notOnNavMesh ? destination : hit.position;
+            _destination = point;
+
+            return notOnNavMesh;
+        }
 
         public override void Begin()
         {
