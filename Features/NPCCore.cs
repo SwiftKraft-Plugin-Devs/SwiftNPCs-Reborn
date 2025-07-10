@@ -1,4 +1,5 @@
-﻿using Interactables.Interobjects;
+﻿using Discord;
+using Interactables.Interobjects;
 using Interactables.Interobjects.DoorUtils;
 using SwiftNPCs.Features.Components;
 using SwiftNPCs.Features.Personalities;
@@ -44,6 +45,7 @@ namespace SwiftNPCs.Features
         public NPCInventory Inventory { get; private set; }
 
         public bool HasTarget => Target != null;
+        public bool CanAttackTarget => HasTarget && Scanner.HasLOS(Target, out _, true);
 
         public bool Initialized { get; private set; }
 

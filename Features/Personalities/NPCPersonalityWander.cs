@@ -51,6 +51,7 @@ namespace SwiftNPCs.Features.Personalities
                         Vector3 rand = Random.insideUnitSphere * 4f;
                         rand.y = 0f;
                         Core.Pathfinder.Destination = r.Transform.position + rand;
+                        Core.Pathfinder.LookAtWaypoint = true;
                         wanderTimer.Reset(Random.Range(MinWanderTimer, MaxWanderTimer));
                         waitTimer.Reset(Random.Range(MinWaitTimer, MaxWaitTimer));
                     }

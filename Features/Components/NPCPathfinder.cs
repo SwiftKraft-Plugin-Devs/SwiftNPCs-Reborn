@@ -30,6 +30,9 @@ namespace SwiftNPCs.Features.Components
         }
         public Vector3 RealDestination => _realDestination;
 
+        public Vector3 RequestedForce { get; set; }
+        public float RequestDecayRate => Motor.MoveSpeed;
+
         Vector3 _destination;
         Vector3 _realDestination;
 
@@ -64,13 +67,14 @@ namespace SwiftNPCs.Features.Components
             //Destination = Player.Get(2).Position;
 
             IsAtDestination = (Destination - Core.Position).sqrMagnitude <= DestinationRange * DestinationRange;
+            RequestedForce = Vector3.MoveTowards(RequestedForce, Vector3.zero, RequestDecayRate * Time.fixedDeltaTime);
 
             if (IsAtDestination)
             {
                 if (RealDestination != Core.Position)
                 {
                     Destination = Core.Position;
-                    Motor.WishMoveDirection = Vector3.zero;
+                    Motor.WishMoveDirection = RequestedForce;
                 }
                 return;
             }
@@ -88,11 +92,40 @@ namespace SwiftNPCs.Features.Components
             Vector3 pos = Core.Position;
             waypoint.y = 0f;
             pos.y = 0f;
-            Vector3 direction = (waypoint - pos).normalized;
+            Vector3 direction = (waypoint - pos + CalculateAvoidance(0.35f) + RequestedForce).normalized;
 
             Motor.WishMoveDirection = direction;
             if (LookAtWaypoint)
                 Motor.WishLookDirection = direction;
+        }
+
+        public Vector3 CalculateAvoidance(float avoidRadius)
+        {
+            Vector3 avoidance = Vector3.zero;
+            Vector3 myPosition = Core.Position;
+            var myZone = Core.NPC.Zone;
+
+            var allNPCs = NPCManager.AllNPCs;
+            int count = allNPCs.Count;
+            for (int i = 0; i < count; i++)
+            {
+                var npc = allNPCs[i];
+                if (npc == Core.NPC || npc.Zone != myZone)
+                    continue;
+
+                Vector3 offset = myPosition - npc.Position;
+                float sqrDist = offset.sqrMagnitude;
+
+                if (sqrDist < avoidRadius * avoidRadius && sqrDist > 0.0001f)
+                {
+                    float dist = Mathf.Sqrt(sqrDist);
+                    Vector3 repulsion = offset / (dist * dist);
+                    avoidance += repulsion;
+                    npc.Core.Pathfinder.RequestedForce -= repulsion * 0.5f;
+                }
+            }
+
+            return avoidance;
         }
 
         public class NPCPath(NPCPathfinder parent, float waypointRadius = 2f)

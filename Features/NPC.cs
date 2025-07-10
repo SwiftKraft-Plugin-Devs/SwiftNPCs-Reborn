@@ -13,6 +13,7 @@ namespace SwiftNPCs.Features
 {
     public class NPC
     {
+        public const string DefaultName = "Bot";
         public NPCCore Core { get; private set; }
         public ReferenceHub ReferenceHub { get; private set; }
         public Player WrapperPlayer => Player.Get(ReferenceHub);
@@ -41,9 +42,9 @@ namespace SwiftNPCs.Features
 
         public FacilityZone Zone => Room?.Zone ?? FacilityZone.None;
 
-        public NPC(Vector3 position, RoleTypeId role = RoleTypeId.Spectator, RoleSpawnFlags spawnFlags = RoleSpawnFlags.AssignInventory) : base()
+        public NPC(Vector3 position, string name = DefaultName, RoleTypeId role = RoleTypeId.Spectator, RoleSpawnFlags spawnFlags = RoleSpawnFlags.AssignInventory) : base()
         {
-            ReferenceHub refHub = DummyUtils.SpawnDummy("Bot");
+            ReferenceHub refHub = DummyUtils.SpawnDummy(name);
             ReferenceHub = refHub;
             NPCManager.AllNPCs.Add(this);
             PlayerEvents.Death += OnDeath;
@@ -54,6 +55,7 @@ namespace SwiftNPCs.Features
                 ReferenceHub.roleManager.ServerSetRole(role, RoleChangeReason.LateJoin, spawnFlags);
                 Core.Position = position; 
                 Core.SetupComponents();
+                ReferenceHub.serverRoles.RefreshLocalBadgeVisibility(ServerRoles.BadgeVisibilityPreferences.Hidden);
             });
         }
 

@@ -4,6 +4,8 @@ using PlayerRoles;
 using SwiftNPCs.Features;
 using SwiftNPCs.Features.Personalities;
 using System;
+using System.Linq;
+using System.Text;
 
 namespace SwiftNPCs.Commands
 {
@@ -36,10 +38,19 @@ namespace SwiftNPCs.Commands
                 return false;
             }
 
-            NPC npc = new(p.Position, role);
+            StringBuilder sb = new();
+            for (int i = 3; i < arguments.Array.Length; i++)
+            {
+                sb.Append(arguments.Array[i]);
+                if (i < arguments.Array.Length - 1)
+                    sb.Append(' ');
+            }
+            string name = sb.ToString();
+
+            NPC npc = new(p.Position, string.IsNullOrWhiteSpace(name) ? NPC.DefaultName : name, role);
             npc.Core.SetPersonality<NPCPersonalityWanderHuman>();
 
-            response = "Spawned " + role + " NPC at " + p.Position;
+            response = "Spawned " + role + " NPC at " + p.Position + " with name \"" + npc.WrapperPlayer.Nickname + "\"";
             return true;
         }
     }

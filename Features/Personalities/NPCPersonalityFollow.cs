@@ -1,4 +1,5 @@
 ﻿using LabApi.Features.Wrappers;
+using PlayerRoles.FirstPersonControl;
 using SwiftNPCs.Features.Components;
 using SwiftNPCs.Utils.Structures;
 using UnityEngine;
@@ -26,9 +27,13 @@ namespace SwiftNPCs.Features.Personalities
 
         public bool HasFollowTarget => CurrentData != null && CurrentData.FollowTarget != null && CurrentData.FollowTarget.ReferenceHub != null;
 
-        public bool InFollowRange => HasFollowTarget && (CurrentData.FollowTarget.Position - Core.Position).sqrMagnitude < FollowRange * FollowRange;
+        public bool InFollowRange => HasFollowTarget && (CurrentData.FollowTarget.Position - Core.Position).sqrMagnitude < CurrentFollowRange * CurrentFollowRange;
 
-        public float FollowRange = 2.5f;
+        public float CurrentFollowRange = 0.5f;
+
+        public float MaxFollowRange = 4f;
+        public float MinFollowRange = 2f;
+        public float SprintRange = 15f;
 
         readonly Timer followUpdate = new(0.5f);
 
@@ -42,6 +47,8 @@ namespace SwiftNPCs.Features.Personalities
             base.Init(core);
             if (!Core.TryGetData(DataID, out CurrentData))
                 Core.TryAddData(DataID, out CurrentData);
+
+            CurrentFollowRange = Random.Range(MinFollowRange, MaxFollowRange);
         }
 
         public override void Tick()
@@ -64,11 +71,15 @@ namespace SwiftNPCs.Features.Personalities
 
             followUpdate.Tick(Time.fixedDeltaTime);
 
+            if (FollowTarget.RoleBase is IFpcRole role)
+                Core.Motor.MoveState = (CurrentData.FollowTarget.Position - Core.Position).sqrMagnitude < SprintRange * SprintRange ? role.FpcModule.CurrentMovementState : PlayerMovementState.Sprinting;
+
             if (InFollowRange)
             {
                 Core.Pathfinder.Stop();
                 Core.Pathfinder.LookAtWaypoint = false;
-                Core.Motor.WishLookPosition = FollowTarget.Position;
+                Core.Motor.WishLookPosition = FollowTarget.Camera.position;
+                CurrentFollowRange = Random.Range(MinFollowRange, MaxFollowRange);
                 return;
             }
 

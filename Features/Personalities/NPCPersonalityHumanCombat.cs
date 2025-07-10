@@ -1,4 +1,5 @@
 ﻿using InventorySystem.Items;
+using SwiftNPCs.Utils.Structures;
 using UnityEngine;
 
 namespace SwiftNPCs.Features.Personalities
@@ -6,12 +7,21 @@ namespace SwiftNPCs.Features.Personalities
     public class NPCPersonalityHumanCombat : NPCPersonalityBase
     {
         public virtual NPCPersonalityBase ExitPersonality => Core.PreviousPersonality;
+        public virtual NPCPersonalityBase DefaultExitPersonality => new NPCPersonalityWanderHuman();
 
         public Vector3 TargetLastPosition { get; set; }
+
+        public float StrafeRange = 5f;
+        public float StrafeTimeMin = 0.5f;
+        public float StrafeTimeMax = 2f;
+        public float BackOffDistance = 3f;
+        public float PushDistance = 16f;
 
         public bool CanChase = true;
 
         bool chasing;
+
+        readonly Timer strafeTimer = new();
 
         public override void Begin() => TargetLastPosition = Core.Position;
 
@@ -19,6 +29,12 @@ namespace SwiftNPCs.Features.Personalities
 
         public override void Tick()
         {
+            if (!IsThreat)
+            {
+                Core.SetPersonality(ExitPersonality == null || ExitPersonality == this ? DefaultExitPersonality : ExitPersonality);
+                return;
+            }
+
             CheckTargetLoop();
             WeaponLoop();
         }
@@ -28,9 +44,24 @@ namespace SwiftNPCs.Features.Personalities
             if (Core.HasTarget)
             {
                 TargetLastPosition = Core.Target.HitPosition;
+                float sqrDist = (Core.Target.PivotPosition - Core.Position).sqrMagnitude;
+                if (sqrDist < BackOffDistance * BackOffDistance)
+                    Core.Pathfinder.Destination = -Core.NPC.ReferenceHub.transform.forward;
+                else if (sqrDist >= PushDistance * PushDistance)
+                    Core.Pathfinder.Destination = TargetLastPosition;
+            }
+
+            if (Core.CanAttackTarget)
+            {
                 chasing = false;
-                if ((Core.Pathfinder.Destination - Core.Position).sqrMagnitude > 4f)
-                    Core.Pathfinder.Destination = Core.Position;
+                strafeTimer.Tick(Time.fixedDeltaTime);
+                if (strafeTimer.Ended)
+                {
+                    strafeTimer.Reset(Random.Range(StrafeTimeMin, StrafeTimeMax));
+                    Vector2 random = Random.insideUnitCircle * StrafeRange;
+                    Vector3 rand = new(random.x, 0f, random.y);
+                    Core.Pathfinder.Destination = Core.Position + rand;
+                }
             }
             else if (CanChase && (TargetLastPosition - Core.Position).sqrMagnitude > 4f && Core.Pathfinder.RealDestination != TargetLastPosition)
             {
@@ -42,7 +73,7 @@ namespace SwiftNPCs.Features.Personalities
                 chasing = false;
 
             if (!Core.HasTarget && !chasing)
-                Core.SetPersonality(ExitPersonality);
+                Core.SetPersonality(ExitPersonality == null || ExitPersonality == this ? DefaultExitPersonality : ExitPersonality);
         }
 
         private void WeaponLoop()

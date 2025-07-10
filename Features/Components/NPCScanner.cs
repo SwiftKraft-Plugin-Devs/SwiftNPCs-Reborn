@@ -60,7 +60,9 @@ namespace SwiftNPCs.Features.Components
     public static class EnemyCheck
     {
         public static bool IsEnemy(this Player player, Player other) =>
-                other.IsAlive
+                other != null
+                && other.ReferenceHub != null
+                && other.IsAlive
                 && !other.IsDisarmed
                 && player.IsAlive
                 && player.Role.GetFaction() != other.Role.GetFaction()
