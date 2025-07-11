@@ -1,9 +1,5 @@
 ﻿using LabApi.Features.Wrappers;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SwiftNPCs.Utils.Extensions
 {
@@ -14,6 +10,12 @@ namespace SwiftNPCs.Utils.Extensions
             foreach (Elevator e in Elevator.List.Where(e => e.WorldSpaceBounds.Contains(player.Position)))
                 return e;
             return null;
+        }
+
+        public static bool TryGetElevator(this Player player, out Elevator elev)
+        {
+            elev = player.GetElevator();
+            return elev != null;
         }
     }
 }

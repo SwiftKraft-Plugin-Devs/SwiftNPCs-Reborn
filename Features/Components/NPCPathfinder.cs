@@ -9,6 +9,7 @@ namespace SwiftNPCs.Features.Components
         public NPCMotor Motor { get; private set; }
 
         public bool LookAtWaypoint = true;
+        public bool LocalAvoidance = true;
 
         public float DestinationRange = 1f;
 
@@ -92,7 +93,7 @@ namespace SwiftNPCs.Features.Components
             Vector3 pos = Core.Position;
             waypoint.y = 0f;
             pos.y = 0f;
-            Vector3 direction = (waypoint - pos + CalculateAvoidance(0.35f) + RequestedForce).normalized;
+            Vector3 direction = (waypoint - pos + (LocalAvoidance ? CalculateAvoidance(0.35f) + RequestedForce : Vector3.zero)).normalized;
 
             Motor.WishMoveDirection = direction;
             if (LookAtWaypoint)

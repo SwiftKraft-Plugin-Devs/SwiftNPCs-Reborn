@@ -1,6 +1,7 @@
 ﻿using LabApi.Features.Wrappers;
 using PlayerRoles.FirstPersonControl;
 using SwiftNPCs.Features.Components;
+using SwiftNPCs.Utils.Extensions;
 using SwiftNPCs.Utils.Structures;
 using UnityEngine;
 
@@ -74,7 +75,12 @@ namespace SwiftNPCs.Features.Personalities
             if (FollowTarget.RoleBase is IFpcRole role)
                 Core.Motor.MoveState = (CurrentData.FollowTarget.Position - Core.Position).sqrMagnitude < SprintRange * SprintRange ? role.FpcModule.CurrentMovementState : PlayerMovementState.Sprinting;
 
-            if (InFollowRange)
+            bool targetInElevator = FollowTarget.TryGetElevator(out Elevator elev);
+
+            if (targetInElevator)
+                CurrentFollowRange = 0.75f;
+
+            if (InFollowRange && (!targetInElevator || (Core.NPC.WrapperPlayer.TryGetElevator(out Elevator thisElev) && thisElev == elev)))
             {
                 Core.Pathfinder.Stop();
                 Core.Pathfinder.LookAtWaypoint = false;
