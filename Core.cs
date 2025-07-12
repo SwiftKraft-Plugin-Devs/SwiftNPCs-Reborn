@@ -1,12 +1,17 @@
-﻿using LabApi.Events.Arguments.PlayerEvents;
+﻿using Interactables.Interobjects;
+using LabApi.Events.Arguments.PlayerEvents;
 using LabApi.Events.Arguments.ServerEvents;
 using LabApi.Events.Handlers;
 using LabApi.Features;
 using LabApi.Loader.Features.Plugins;
 using LabApi.Loader.Features.Plugins.Enums;
+using MapGeneration.RoomConnectors;
+using MapGeneration.RoomConnectors.Spawners;
 using SwiftNPCs.Commands;
 using SwiftNPCs.Features;
+using SwiftNPCs.HarmonyPatching;
 using SwiftNPCs.NavGeometry;
+using SwiftNPCs.Utils;
 using System;
 using UnityEngine;
 using UnityEngine.AI;
@@ -44,6 +49,15 @@ namespace SwiftNPCs
 
             ServerEvents.MapGenerated += MapGenerated;
             PlayerEvents.ShotWeapon += OnPlayerShotWeapon;
+
+            //HarmonyManager.Enable();
+        }
+
+        private void Test(SpawnableRoomConnector connector)
+        {
+            Logger.Info("Connector spawned: ");
+            foreach (Collider go in connector.GetComponentsInChildren<Collider>())
+                Logger.Info($"{go.name}, collider: {go}");
         }
 
         private void MapGenerated(MapGeneratedEventArgs ev)
@@ -51,6 +65,9 @@ namespace SwiftNPCs
             NavGeometryManager.LoadNavGeometry();
             BuildNavMesh();
             NavGeometryManager.RemoveNavGeometry();
+
+            foreach (SpawnableRoomConnector conn in Object.FindObjectsByType<SpawnableRoomConnector>(FindObjectsSortMode.None))
+                Test(conn);
         }
 
         internal void OnPlayerShotWeapon(PlayerShotWeaponEventArgs ev)
@@ -99,6 +116,8 @@ namespace SwiftNPCs
             NPCManager.RemoveAll();
             ServerEvents.MapGenerated -= MapGenerated;
             PlayerEvents.ShotWeapon -= OnPlayerShotWeapon;
+
+            //HarmonyManager.Disable();
         }
     }
 }

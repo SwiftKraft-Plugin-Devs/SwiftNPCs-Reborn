@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
-namespace SwiftNPCs
+namespace SwiftNPCs.Utils
 {
     public static class Utilities
     {
@@ -20,7 +20,7 @@ namespace SwiftNPCs
         public static RoleTypeId GetRoleFromString(this string roleName) => !Roles.ContainsKey(roleName) ? RoleTypeId.None : Roles[roleName];
         public static bool TryGetRoleFromString(this string roleName, out RoleTypeId roleType)
         {
-            roleType = GetRoleFromString(roleName);
+            roleType = roleName.GetRoleFromString();
             return roleType != RoleTypeId.None;
         }
 

@@ -4,6 +4,7 @@ using Interactables.Interobjects.DoorUtils;
 using SwiftNPCs.Features.Components;
 using SwiftNPCs.Features.Personalities;
 using SwiftNPCs.Features.Targettables;
+using SwiftNPCs.Utils;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
