@@ -4,7 +4,6 @@ using PlayerRoles;
 using SwiftNPCs.Features;
 using SwiftNPCs.Features.Personalities;
 using System;
-using System.Linq;
 using System.Text;
 
 namespace SwiftNPCs.Commands

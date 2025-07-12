@@ -6,8 +6,8 @@ using LabApi.Loader.Features.Plugins;
 using LabApi.Loader.Features.Plugins.Enums;
 using SwiftNPCs.Commands;
 using SwiftNPCs.Features;
+using SwiftNPCs.NavGeometry;
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using Logger = LabApi.Features.Console.Logger;
@@ -17,11 +17,9 @@ namespace SwiftNPCs
 {
     public class Core : Plugin
     {
-        public static LayerMask NavMeshLayers = LayerMask.GetMask("Default", "InvisibleCollider");
+        public static LayerMask NavMeshLayers = LayerMask.GetMask("Default", "InvisibleCollider", "Fence");
 
         public static Version CurrentVersion = new(2, 0, 0, 0);
-
-        public static List<IEvents> Events = [];
 
         public static Core Instance { get; private set; }
 
@@ -45,12 +43,14 @@ namespace SwiftNPCs
             NPCParentCommand.SetPrompt();
 
             ServerEvents.MapGenerated += MapGenerated;
-            //PlayerEvents.ShotWeapon += OnPlayerShotWeapon;
+            PlayerEvents.ShotWeapon += OnPlayerShotWeapon;
         }
 
         private void MapGenerated(MapGeneratedEventArgs ev)
         {
+            NavGeometryManager.LoadNavGeometry();
             BuildNavMesh();
+            NavGeometryManager.RemoveNavGeometry();
         }
 
         internal void OnPlayerShotWeapon(PlayerShotWeaponEventArgs ev)
@@ -79,14 +79,15 @@ namespace SwiftNPCs
             settings.agentClimb = 0.21f;
             settings.agentHeight = 0.83f;
             settings.agentSlope = 45f;
-            settings.agentRadius = 0.17f;
+            settings.agentRadius = 0.25f;
 
-            NavMeshSurface.buildHeightMesh = true;
             NavMeshSurface.useGeometry = NavMeshCollectGeometry.PhysicsColliders;
             NavMeshSurface.collectObjects = CollectObjects.All;
             NavMeshSurface.layerMask = NavMeshLayers;
             NavMeshSurface.overrideVoxelSize = true;
             NavMeshSurface.voxelSize = 0.05f;
+            NavMeshSurface.overrideTileSize = true;
+            NavMeshSurface.tileSize = 128;
 
             NavMeshSurface.BuildNavMesh();
 
@@ -95,26 +96,9 @@ namespace SwiftNPCs
 
         public override void Disable()
         {
-            foreach (IEvents e in Events)
-                e.Unsubscribe();
-
             NPCManager.RemoveAll();
             ServerEvents.MapGenerated -= MapGenerated;
-            //PlayerEvents.ShotWeapon -= OnPlayerShotWeapon;
+            PlayerEvents.ShotWeapon -= OnPlayerShotWeapon;
         }
-    }
-
-    public interface IEvents
-    {
-        void Unsubscribe();
-    }
-
-    public abstract class EventClassBase : IEvents
-    {
-        public EventClassBase() => Core.Events.Add(this);
-
-        public abstract void Unsubscribe();
-
-        public void Remove() => Core.Events.Remove(this);
     }
 }
