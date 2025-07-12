@@ -56,7 +56,7 @@ namespace SwiftNPCs
         private void Test(SpawnableRoomConnector connector)
         {
             Logger.Info("Connector spawned: ");
-            foreach (Collider go in connector.GetComponentsInChildren<Collider>())
+            foreach (Collider go in connector.GetComponentsInChildren<MeshCollider>())
                 Logger.Info($"{go.name}, collider: {go}");
         }
 
