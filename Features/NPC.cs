@@ -20,6 +20,7 @@ namespace SwiftNPCs.Features
         public PlayerRoleBase RoleBase => ReferenceHub.roleManager.CurrentRole;
 
         public bool Respawnable;
+        public bool Disposed => ReferenceHub == null;
 
         public Vector3 Position
         {
