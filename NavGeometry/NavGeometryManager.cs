@@ -1,13 +1,16 @@
-﻿using LabApi.Features.Wrappers;
+﻿using LabApi.Features.Console;
+using LabApi.Features.Wrappers;
 using LabApi.Loader;
 using LabApi.Loader.Features.Plugins;
 using MapGeneration;
+using MapGeneration.RoomConnectors;
 using SwiftNPCs.Utils;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
 using Utf8Json;
+using Logger = LabApi.Features.Console.Logger;
 
 namespace SwiftNPCs.NavGeometry
 {
@@ -17,6 +20,8 @@ namespace SwiftNPCs.NavGeometry
 
         public static readonly Dictionary<Room, List<PrimitiveObjectToy>> NavGeometry = [];
 
+        public static readonly List<PrimitiveObjectToy> TemporaryBlockouts = [];
+
         public struct SavedPrimitive
         {
             public PrimitiveType Type;
@@ -24,15 +29,9 @@ namespace SwiftNPCs.NavGeometry
             public Quaternion Rotation;
             public Vector3 Scale;
 
-            public static PrimitiveObjectToy Spawn(SavedPrimitive prim)
-            {
-                PrimitiveObjectToy toy = PrimitiveObjectToy.Create(prim.Position, prim.Rotation, prim.Scale, networkSpawn: false);
-                toy.Base.NetworkPrimitiveType = prim.Type;
-                toy.Spawn();
-                return toy;
-            }
+            public static PrimitiveObjectToy Spawn(Room r, SavedPrimitive prim) => SpawnPrim(prim.Type, r.Rotation * prim.Position + r.Position, prim.Rotation * r.Rotation, prim.Scale);
 
-            public static implicit operator SavedPrimitive(PrimitiveObjectToy toy) => new() { Type = toy.Type, Position = toy.Position, Rotation = toy.Rotation, Scale = toy.Scale };
+            public static SavedPrimitive Convert(Room r, PrimitiveObjectToy toy) => new() { Type = toy.Type, Position = Quaternion.Inverse(r.Rotation) * (toy.Position - r.Position), Rotation = Quaternion.Inverse(r.Rotation) * toy.Rotation, Scale = toy.Scale };
         }
 
         public struct SavedRoom
@@ -43,25 +42,68 @@ namespace SwiftNPCs.NavGeometry
 
             public SavedPrimitive[] Primitives;
 
-            public static implicit operator SavedRoom(Room room) => new() { Zone = room.Zone, Shape = room.Shape, Name = room.Name, Primitives = NavGeometry.ContainsKey(room) ? [.. Convert(NavGeometry[room])] : null };
+            public static implicit operator SavedRoom(Room room) => new() { Zone = room.Zone, Shape = room.Shape, Name = room.Name, Primitives = NavGeometry.ContainsKey(room) ? [.. Convert(room, NavGeometry[room])] : null };
         }
 
-        public static List<SavedPrimitive> Convert(List<PrimitiveObjectToy> toys)
+        private static bool ContainsName(string target, params string[] cont)
         {
+            foreach (string c in cont)
+                if (target.Contains(c))
+                    return true;
+            return false;
+        }
+
+        public static void RemoveBlockouts()
+        {
+            foreach (PrimitiveObjectToy toy in TemporaryBlockouts)
+                toy.Destroy();
+        }
+
+        public static void BlockoutConnectorMeshes(SpawnableRoomConnector connector, params string[] bannedKeywords)
+        {
+            Logger.Info("Connector spawned: ");
+            foreach (MeshCollider go in connector.GetComponentsInChildren<MeshCollider>())
+                if (!ContainsName(go.name, bannedKeywords))
+                {
+                    PrimitiveObjectToy t = SpawnPrim(PrimitiveType.Cube, go.bounds.center, Quaternion.identity, go.bounds.size);
+                    TemporaryBlockouts.Add(t);
+                    Logger.Info(go.name);
+                }
+        }
+
+        public static void BlockoutConnectors()
+        {
+            foreach (SpawnableRoomConnector conn in Object.FindObjectsByType<SpawnableRoomConnector>(FindObjectsSortMode.None))
+                BlockoutConnectorMeshes(conn, "Doorframe", "Doors", "Collider");
+        }
+
+        public static List<SavedPrimitive> Convert(Room r, List<PrimitiveObjectToy> toys)
+        {
+            if (toys.Count == 0) return [];
+
             List<SavedPrimitive> res = [];
             for (int i = 0; i < toys.Count; i++)
-                res[i] = toys[i];
+                res.Add(SavedPrimitive.Convert(r, toys[i]));
             return res;
+        }
+
+        public static PrimitiveObjectToy SpawnPrim(PrimitiveType type, Vector3 pos, Quaternion rot, Vector3 scale)
+        {
+            PrimitiveObjectToy toy = PrimitiveObjectToy.Create(pos, rot, scale, networkSpawn: false);
+            toy.Base.NetworkPrimitiveType = type;
+            toy.Color = new Color(1f, 0f, 0f, 0.4f);
+            toy.Spawn();
+            return toy;
         }
 
         public static PrimitiveObjectToy Spawn(Room room, Vector3 pos, Quaternion rot, Vector3 scale)
         {
+            if (room == null) return null;
+
             if (!NavGeometry.ContainsKey(room))
                 NavGeometry.Add(room, []);
 
-            PrimitiveObjectToy toy = PrimitiveObjectToy.Create(pos, rot, scale, networkSpawn: false);
-            toy.Base.NetworkPrimitiveType = PrimitiveType.Cube;
-            toy.Spawn();
+            PrimitiveObjectToy toy = SpawnPrim(PrimitiveType.Cube, room.Position + room.Rotation * pos, room.Rotation * rot, scale);
             NavGeometry[room].Add(toy);
             return toy;
         }
@@ -98,14 +140,16 @@ namespace SwiftNPCs.NavGeometry
             if (!File.Exists(path))
                 return;
 
-            SavedRoom ro = JsonSerializer.Deserialize<SavedRoom>(File.ReadAllText(path));
+            SavedRoom ro = JsonSerializer.Deserialize<SavedRoom>(File.ReadAllBytes(path));
 
             List<PrimitiveObjectToy> prims = [];
 
             foreach (SavedPrimitive prim in ro.Primitives)
-                prims.Add(SavedPrimitive.Spawn(prim));
+                prims.Add(SavedPrimitive.Spawn(room, prim));
 
             NavGeometry.Add(room, prims);
+
+            Logger.Info("Loaded NavGeometry: " + room.Name);
         }
 
         public static void LoadNavGeometry()

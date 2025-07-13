@@ -5,6 +5,7 @@ using LabApi.Features;
 using LabApi.Features.Wrappers;
 using LabApi.Loader.Features.Plugins;
 using LabApi.Loader.Features.Plugins.Enums;
+using MapGeneration;
 using MapGeneration.RoomConnectors;
 using MEC;
 using SwiftNPCs.Commands;
@@ -42,8 +43,6 @@ namespace SwiftNPCs
 
         public static NavMeshSurface NavMeshSurface = null;
 
-        public static readonly List<PrimitiveObjectToy> TemporaryBlockouts = [];
-
         public override void Enable()
         {
             Instance = this;
@@ -52,35 +51,9 @@ namespace SwiftNPCs
             ServerEvents.MapGenerated += MapGenerated;
             PlayerEvents.ShotWeapon += OnPlayerShotWeapon;
 
+            NavGeometryEditor.Enable();
+
             //HarmonyManager.Enable();
-        }
-
-        private static void BlockoutConnectorMeshes(SpawnableRoomConnector connector, params string[] bannedKeywords)
-        {
-            Logger.Info("Connector spawned: ");
-            foreach (MeshCollider go in connector.GetComponentsInChildren<MeshCollider>())
-                if (!ContainsName(go.name, bannedKeywords))
-                {
-                    PrimitiveObjectToy t = PrimitiveObjectToy.Create(go.bounds.center, Quaternion.identity, go.bounds.size, networkSpawn: false);
-                    t.Base.NetworkPrimitiveType = PrimitiveType.Cube;
-                    t.Spawn();
-                    TemporaryBlockouts.Add(t);
-                    Logger.Info(go.name);
-                }
-        }
-
-        private static void RemoveBlockouts()
-        {
-            foreach (PrimitiveObjectToy toy in TemporaryBlockouts)
-                toy.Destroy();
-        }
-
-        private static bool ContainsName(string target, params string[] cont)
-        {
-            foreach (string c in cont)
-                if (target.Contains(c))
-                    return true;
-            return false;
         }
 
         private void MapGenerated(MapGeneratedEventArgs ev)
@@ -88,11 +61,12 @@ namespace SwiftNPCs
             Timing.CallDelayed(0.25f, static () =>
             {
                 NavGeometryManager.LoadNavGeometry();
-                foreach (SpawnableRoomConnector conn in Object.FindObjectsByType<SpawnableRoomConnector>(FindObjectsSortMode.None))
-                    BlockoutConnectorMeshes(conn, "Doorframe", "Doors", "Collider");
+                NavGeometryManager.BlockoutConnectors();
+                //NavGeometryManager.Spawn(Room.Get(RoomName.EzEvacShelter).FirstOrDefault(), Vector3.zero, Quaternion.identity, Vector3.one * 5f);
+                //NavGeometryManager.SaveNavGeometry();
                 BuildNavMesh();
-                NavGeometryManager.RemoveNavGeometry();
-                RemoveBlockouts();
+                //NavGeometryManager.RemoveNavGeometry();
+                //RemoveBlockouts();
             });
         }
 
@@ -142,6 +116,8 @@ namespace SwiftNPCs
             NPCManager.RemoveAll();
             ServerEvents.MapGenerated -= MapGenerated;
             PlayerEvents.ShotWeapon -= OnPlayerShotWeapon;
+
+            NavGeometryEditor.Disable();
 
             //HarmonyManager.Disable();
         }
