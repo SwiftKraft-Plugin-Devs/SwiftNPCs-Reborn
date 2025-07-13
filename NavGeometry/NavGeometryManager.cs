@@ -91,7 +91,7 @@ namespace SwiftNPCs.NavGeometry
         {
             PrimitiveObjectToy toy = PrimitiveObjectToy.Create(pos, rot, scale, networkSpawn: false);
             toy.Base.NetworkPrimitiveType = type;
-            toy.Color = new Color(1f, 0f, 0f, 0.4f);
+            toy.Color = new Color(1f, 0f, 0f, 0.85f);
             toy.Spawn();
             return toy;
         }

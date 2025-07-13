@@ -4,6 +4,7 @@ using LabApi.Features.Wrappers;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Logger = LabApi.Features.Console.Logger;
 
 namespace SwiftNPCs.NavGeometry
 {
@@ -13,25 +14,52 @@ namespace SwiftNPCs.NavGeometry
 
         public readonly static List<Editor> Editors = [];
 
-        private static void OnShotWeapon(PlayerShotWeaponEventArgs ev)
+        private static void OnShootingWeapon(PlayerShootingWeaponEventArgs ev)
         {
             for (int i = 0; i < Editors.Count; i++)
-                Editors[i].ShotWeapon(ev);
+                Editors[i].ShootingWeapon(ev);
+        }
+
+        private static void OnAimedWeapon(PlayerAimedWeaponEventArgs ev)
+        {
+            for (int i = 0; i < Editors.Count; i++)
+                Editors[i].AimedWeapon(ev);
+        }
+
+        private static void OnReloadingWeapon(PlayerReloadingWeaponEventArgs ev)
+        {
+            for (int i = 0; i < Editors.Count; i++)
+                Editors[i].ReloadingWeapon(ev);
+        }
+
+        private static void Tick()
+        {
+            for (int i = 0; i < Editors.Count; i++)
+                Editors[i].Tick();
         }
 
         public static void Enable()
         {
-            PlayerEvents.ShotWeapon += OnShotWeapon;
+            PlayerEvents.ShootingWeapon += OnShootingWeapon;
+            PlayerEvents.AimedWeapon += OnAimedWeapon;
+            PlayerEvents.ReloadingWeapon += OnReloadingWeapon;
+
+            StaticUnityMethods.OnFixedUpdate += Tick;
         }
 
         public static void Disable()
         {
-            PlayerEvents.ShotWeapon -= OnShotWeapon;
+            PlayerEvents.ShootingWeapon -= OnShootingWeapon;
+            PlayerEvents.AimedWeapon -= OnAimedWeapon;
+            PlayerEvents.ReloadingWeapon -= OnReloadingWeapon;
+
+            StaticUnityMethods.OnFixedUpdate -= Tick;
         }
 
         public static void GiveEditor(Player player)
         {
             Item it = player.AddItem(ItemType.GunCOM18);
+            Logger.Info(it.Serial);
             Editors.Add(new(it.Serial));
         }
 
@@ -44,7 +72,6 @@ namespace SwiftNPCs.NavGeometry
             public readonly ushort ItemSerial;
             public readonly List<EditModeBase> EditModes = [];
             public readonly Stack<EditAction> Actions = [];
-            public readonly Stack<EditAction> Undid = [];
 
             public int CurrentMode
             {
@@ -63,34 +90,69 @@ namespace SwiftNPCs.NavGeometry
             {
                 ItemSerial = serial;
                 foreach (Type t in EditModeTypes)
-                    if (t.IsAssignableFrom(typeof(EditModeBase)) && !t.IsAbstract)
-                        EditModes.Add((EditModeBase)Activator.CreateInstance(t, this));
+                    if (!t.IsAbstract)
+                    {
+                        EditModeBase b = (EditModeBase)Activator.CreateInstance(t);
+                        b.Init(this);
+                        EditModes.Add(b);
+                        Logger.Info(b.GetType());
+                    }
             }
 
             public static void RegisterEditMode<T>() where T : EditModeBase, new() => EditModeTypes.Add(typeof(T));
 
-            public void ShotWeapon(PlayerShotWeaponEventArgs ev)
+            public void Tick()
             {
-                if (ev.FirearmItem.Serial != ItemSerial || EditModes.Count <= 0
-                    || !Physics.Raycast(ev.Player.Camera.position, ev.Player.Camera.forward,
-                    out RaycastHit _hit, 5f, GeoLayers, QueryTriggerInteraction.Ignore))
+                if (EditModes.Count > 0)
+                    EditModes[CurrentMode].Tick();
+            }
+
+            public void ShootingWeapon(PlayerShootingWeaponEventArgs ev)
+            {
+                if (ev.FirearmItem.Serial != ItemSerial)
                     return;
 
-                Actions.Push(EditModes[CurrentMode].Action(ev.Player, _hit));
-                Undid.Clear();
+                ev.IsAllowed = false;
+
+                if (EditModes.Count <= 0)
+                    return;
+
+                Actions.Push(EditModes[CurrentMode].Action(ev.Player, !Physics.Raycast(ev.Player.Camera.position, ev.Player.Camera.forward,
+                    out RaycastHit _hit, 5f, GeoLayers, QueryTriggerInteraction.Ignore), _hit));
+            }
+
+            public void AimedWeapon(PlayerAimedWeaponEventArgs ev)
+            {
+                if (ev.FirearmItem.Serial != ItemSerial || !ev.Aiming)
+                    return;
+
+                CurrentMode++;
+            }
+
+            public void ReloadingWeapon(PlayerReloadingWeaponEventArgs ev)
+            {
+                if (ev.FirearmItem.Serial != ItemSerial)
+                    return;
+
+                ev.IsAllowed = false;
+                if (Actions.Count > 0)
+                    Actions.Pop().Undo?.Invoke();
             }
         }
 
-        public abstract class EditModeBase(Editor parent)
+        public abstract class EditModeBase
         {
-            public readonly Editor Parent = parent;
-            public abstract EditAction Action(Player p, RaycastHit hit);
+            public Editor Parent { get; private set; }
+
+            public void Init(Editor parent) => Parent = parent;
+
+            public abstract EditAction Action(Player p, bool hasHit, RaycastHit hit);
+            public abstract void Tick();
         }
 
-        public struct EditAction(Action undo, Action redo)
+        public struct EditAction(Action undo)
         {
             public Action Undo = undo;
-            public Action Redo = redo;
         }
     }
 }

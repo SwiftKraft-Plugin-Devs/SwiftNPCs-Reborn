@@ -11,6 +11,7 @@ using MEC;
 using SwiftNPCs.Commands;
 using SwiftNPCs.Features;
 using SwiftNPCs.NavGeometry;
+using SwiftNPCs.NavGeometry.EditModes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,10 +51,18 @@ namespace SwiftNPCs
 
             ServerEvents.MapGenerated += MapGenerated;
             PlayerEvents.ShotWeapon += OnPlayerShotWeapon;
+            PlayerEvents.Spawned += OnSpawned;
 
             NavGeometryEditor.Enable();
 
+            NavGeometryEditor.RegisterEditMode<Create>();
+
             //HarmonyManager.Enable();
+        }
+
+        private void OnSpawned(PlayerSpawnedEventArgs ev)
+        {
+            Timing.CallDelayed(1f, () => NavGeometryEditor.GiveEditor(ev.Player));
         }
 
         private void MapGenerated(MapGeneratedEventArgs ev)
@@ -116,6 +125,7 @@ namespace SwiftNPCs
             NPCManager.RemoveAll();
             ServerEvents.MapGenerated -= MapGenerated;
             PlayerEvents.ShotWeapon -= OnPlayerShotWeapon;
+            PlayerEvents.Spawned -= OnSpawned;
 
             NavGeometryEditor.Disable();
 

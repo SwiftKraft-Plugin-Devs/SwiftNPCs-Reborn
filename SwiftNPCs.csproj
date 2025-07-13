@@ -51,7 +51,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="NavGeometry\EditModes\" />
     <Folder Include="NavMesh\" />
   </ItemGroup>
 
