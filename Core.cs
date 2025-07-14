@@ -63,10 +63,8 @@ namespace SwiftNPCs
         {
             Timing.CallDelayed(0.25f, static () =>
             {
-                NavGeometryManager.LoadNavGeometry();
-                NavGeometryManager.BlockoutConnectors();
-                //NavGeometryManager.Spawn(Room.Get(RoomName.EzEvacShelter).FirstOrDefault(), Vector3.zero, Quaternion.identity, Vector3.one * 5f);
-                //NavGeometryManager.SaveNavGeometry();
+                //NavGeometryManager.LoadNavGeometry();
+                //NavGeometryManager.BlockoutConnectors();
                 BuildNavMesh();
                 //NavGeometryManager.RemoveNavGeometry();
                 //RemoveBlockouts();

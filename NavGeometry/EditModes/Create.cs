@@ -17,7 +17,6 @@ namespace SwiftNPCs.NavGeometry.EditModes
                 editingPlayer = null;
                 currentEdit.Base.NetworkPrimitiveFlags = AdminToys.PrimitiveFlags.Collidable | AdminToys.PrimitiveFlags.Visible;
                 currentEdit.IsStatic = true;
-                currentEdit.Base.NetworkMovementSmoothing = 0;
                 currentEdit = null;
                 if (editingRoom != null)
                     NavGeometryManager.SaveNavGeometry(editingRoom);
@@ -32,7 +31,6 @@ namespace SwiftNPCs.NavGeometry.EditModes
             PrimitiveObjectToy toy = NavGeometryManager.Spawn(p.Room, p.Room.Position, Quaternion.LookRotation(hit.normal, Vector3.up), Vector3.one);
             currentEdit = toy;
             currentEdit.IsStatic = false;
-            currentEdit.Base.NetworkMovementSmoothing = 250;
             currentEdit.Base.NetworkPrimitiveFlags = AdminToys.PrimitiveFlags.Visible;
             editingPlayer = p;
             editingRoom = p.Room;
