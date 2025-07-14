@@ -19,10 +19,15 @@ namespace SwiftNPCs.NavGeometry.EditModes
             Vector3 scale = prim.Scale;
             Room room = p.Room;
             prim.Destroy();
+            NavGeometryManager.SaveNavGeometry(room);
 
             return new(undo);
 
-            void undo() => NavGeometryManager.Spawn(room, pos, rot, scale);
+            void undo()
+            {
+                NavGeometryManager.Spawn(room, pos, rot, scale);
+                NavGeometryManager.SaveNavGeometry(room);
+            }
         }
 
         public override void Tick() { }

@@ -28,12 +28,26 @@ namespace SwiftNPCs.NavGeometry
 
             public static PrimitiveObjectToy Spawn(Room r, SavedPrimitive prim)
             {
-                PrimitiveObjectToy obj = SpawnPrim(prim.Type, (r.Rotation * prim.Position) + r.Position, prim.Rotation * r.Rotation, prim.Scale);
+                Transform t = r.Transform; // assuming Room has a Transform
+                Vector3 worldPosition = t.TransformPoint(prim.Position);
+                Quaternion worldRotation = prim.Rotation * t.rotation;
+
+                PrimitiveObjectToy obj = NavGeometryManager.SpawnPrim(prim.Type, worldPosition, worldRotation, prim.Scale);
                 obj.GameObject.name += "(NavGeometry)";
                 return obj;
             }
 
-            public static SavedPrimitive Convert(Room r, PrimitiveObjectToy toy) => new() { Type = toy.Type, Position = Quaternion.Inverse(r.Rotation) * (toy.Position - r.Position), Rotation = Quaternion.Inverse(r.Rotation) * toy.Rotation, Scale = toy.Scale };
+            public static SavedPrimitive Convert(Room r, PrimitiveObjectToy toy)
+            {
+                Transform t = r.Transform; // assuming Room has a Transform
+                return new SavedPrimitive
+                {
+                    Type = toy.Type,
+                    Position = t.InverseTransformPoint(toy.Position),
+                    Rotation = Quaternion.Inverse(t.rotation) * toy.Rotation,
+                    Scale = toy.Scale
+                };
+            }
         }
 
         public struct SavedRoom
@@ -93,7 +107,6 @@ namespace SwiftNPCs.NavGeometry
         {
             PrimitiveObjectToy toy = PrimitiveObjectToy.Create(pos, rot, scale, networkSpawn: false);
             toy.Base.NetworkPrimitiveType = type;
-            toy.Color = new Color(1f, 0f, 0f, 0.85f);
             toy.Spawn();
             return toy;
         }
@@ -137,7 +150,7 @@ namespace SwiftNPCs.NavGeometry
             if (!Directory.Exists(DirectoryPath))
                 Directory.CreateDirectory(DirectoryPath);
 
-            string path = Path.Combine(DirectoryPath, room.Zone + "." + room.Shape + "." + room.Name + ".json");
+            string path = Path.Combine(DirectoryPath, room.GameObject.name + ".json");
 
             if (!File.Exists(path))
                 return;
@@ -151,7 +164,7 @@ namespace SwiftNPCs.NavGeometry
 
             NavGeometry.Add(room, prims);
 
-            Logger.Info("Loaded NavGeometry: " + room.Name);
+            Logger.Info("Loaded NavGeometry: " + room.GameObject.name);
         }
 
         public static void LoadNavGeometry()

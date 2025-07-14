@@ -127,7 +127,7 @@ namespace SwiftNPCs.NavGeometry
                     return;
 
                 CurrentMode++;
-                ev.Player.SendHint(EditModes[CurrentMode].Name, 10f);
+                ev.Player.SendHint(EditModes[CurrentMode].Name + "\nCurrent Room: " + ev.Player.Room.GameObject.name, 2f);
             }
 
             public void ReloadingWeapon(PlayerReloadingWeaponEventArgs ev)
