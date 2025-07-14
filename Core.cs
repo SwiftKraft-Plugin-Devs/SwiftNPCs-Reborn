@@ -50,19 +50,13 @@ namespace SwiftNPCs
             NPCParentCommand.SetPrompt();
 
             ServerEvents.MapGenerated += MapGenerated;
-            PlayerEvents.ShotWeapon += OnPlayerShotWeapon;
-            PlayerEvents.Spawned += OnSpawned;
+            //PlayerEvents.ShotWeapon += OnPlayerShotWeapon;
 
             NavGeometryEditor.Enable();
 
             NavGeometryEditor.RegisterEditMode<Create>();
 
             //HarmonyManager.Enable();
-        }
-
-        private void OnSpawned(PlayerSpawnedEventArgs ev)
-        {
-            Timing.CallDelayed(1f, () => NavGeometryEditor.GiveEditor(ev.Player));
         }
 
         private void MapGenerated(MapGeneratedEventArgs ev)
@@ -124,8 +118,7 @@ namespace SwiftNPCs
         {
             NPCManager.RemoveAll();
             ServerEvents.MapGenerated -= MapGenerated;
-            PlayerEvents.ShotWeapon -= OnPlayerShotWeapon;
-            PlayerEvents.Spawned -= OnSpawned;
+            //PlayerEvents.ShotWeapon -= OnPlayerShotWeapon;
 
             NavGeometryEditor.Disable();
 
