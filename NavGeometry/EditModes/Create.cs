@@ -5,6 +5,7 @@ namespace SwiftNPCs.NavGeometry.EditModes
 {
     public class Create : NavGeometryEditor.EditModeBase
     {
+        Room editingRoom;
         PrimitiveObjectToy currentEdit;
         Player editingPlayer;
         Vector3 point;
@@ -18,6 +19,9 @@ namespace SwiftNPCs.NavGeometry.EditModes
                 currentEdit.IsStatic = true;
                 currentEdit.Base.NetworkMovementSmoothing = 0;
                 currentEdit = null;
+                if (editingRoom != null)
+                    NavGeometryManager.SaveNavGeometry(editingRoom);
+                editingRoom = null;
                 point = default;
                 return default;
             }
@@ -25,18 +29,22 @@ namespace SwiftNPCs.NavGeometry.EditModes
             if (p.Room == null || !hasHit)
                 return default;
 
-            PrimitiveObjectToy toy = NavGeometryManager.Spawn(p.Room, hit.point, Quaternion.LookRotation(hit.normal, Vector3.up), Vector3.one);
+            PrimitiveObjectToy toy = NavGeometryManager.Spawn(p.Room, p.Room.Position, Quaternion.LookRotation(hit.normal, Vector3.up), Vector3.one);
             currentEdit = toy;
             currentEdit.IsStatic = false;
             currentEdit.Base.NetworkMovementSmoothing = 250;
             currentEdit.Base.NetworkPrimitiveFlags = AdminToys.PrimitiveFlags.Visible;
             editingPlayer = p;
+            editingRoom = p.Room;
             point = hit.point;
 
             void undo()
             {
                 toy.Destroy();
                 editingPlayer = null;
+                if (editingRoom != null)
+                    NavGeometryManager.SaveNavGeometry(editingRoom);
+                editingRoom = null;
                 currentEdit = null;
                 point = default;
             }

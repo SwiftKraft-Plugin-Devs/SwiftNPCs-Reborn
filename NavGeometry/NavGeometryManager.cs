@@ -1,10 +1,7 @@
-﻿using LabApi.Features.Console;
-using LabApi.Features.Wrappers;
+﻿using LabApi.Features.Wrappers;
 using LabApi.Loader;
-using LabApi.Loader.Features.Plugins;
 using MapGeneration;
 using MapGeneration.RoomConnectors;
-using SwiftNPCs.Utils;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -83,7 +80,8 @@ namespace SwiftNPCs.NavGeometry
 
             List<SavedPrimitive> res = [];
             for (int i = 0; i < toys.Count; i++)
-                res.Add(SavedPrimitive.Convert(r, toys[i]));
+                if (toys[i] != null && toys[i].Base != null)
+                    res.Add(SavedPrimitive.Convert(r, toys[i]));
             return res;
         }
 

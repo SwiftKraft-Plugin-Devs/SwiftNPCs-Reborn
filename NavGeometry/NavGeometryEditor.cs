@@ -117,7 +117,7 @@ namespace SwiftNPCs.NavGeometry
                 if (EditModes.Count <= 0)
                     return;
 
-                Actions.Push(EditModes[CurrentMode].Action(ev.Player, !Physics.Raycast(ev.Player.Camera.position, ev.Player.Camera.forward,
+                Actions.Push(EditModes[CurrentMode].Action(ev.Player, Physics.Raycast(ev.Player.Camera.position, ev.Player.Camera.forward,
                     out RaycastHit _hit, 5f, GeoLayers, QueryTriggerInteraction.Ignore), _hit));
             }
 
