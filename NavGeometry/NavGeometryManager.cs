@@ -26,20 +26,23 @@ namespace SwiftNPCs.NavGeometry
             public Quaternion Rotation;
             public Vector3 Scale;
 
-            public static PrimitiveObjectToy Spawn(Room r, SavedPrimitive prim) => SpawnPrim(prim.Type, r.Rotation * prim.Position + r.Position, prim.Rotation * r.Rotation, prim.Scale);
+            public static PrimitiveObjectToy Spawn(Room r, SavedPrimitive prim)
+            {
+                PrimitiveObjectToy obj = SpawnPrim(prim.Type, (r.Rotation * prim.Position) + r.Position, prim.Rotation * r.Rotation, prim.Scale);
+                obj.GameObject.name += "(NavGeometry)";
+                return obj;
+            }
 
             public static SavedPrimitive Convert(Room r, PrimitiveObjectToy toy) => new() { Type = toy.Type, Position = Quaternion.Inverse(r.Rotation) * (toy.Position - r.Position), Rotation = Quaternion.Inverse(r.Rotation) * toy.Rotation, Scale = toy.Scale };
         }
 
         public struct SavedRoom
         {
-            public FacilityZone Zone;
-            public RoomShape Shape;
-            public RoomName Name;
+            public string Name;
 
             public SavedPrimitive[] Primitives;
 
-            public static implicit operator SavedRoom(Room room) => new() { Zone = room.Zone, Shape = room.Shape, Name = room.Name, Primitives = NavGeometry.ContainsKey(room) ? [.. Convert(room, NavGeometry[room])] : null };
+            public static implicit operator SavedRoom(Room room) => new() { Name = room.GameObject.name, Primitives = NavGeometry.ContainsKey(room) ? [.. Convert(room, NavGeometry[room])] : null };
         }
 
         private static bool ContainsName(string target, params string[] cont)
@@ -63,6 +66,7 @@ namespace SwiftNPCs.NavGeometry
                 if (!ContainsName(go.name, bannedKeywords))
                 {
                     PrimitiveObjectToy t = SpawnPrim(PrimitiveType.Cube, go.bounds.center, Quaternion.identity, go.bounds.size);
+                    
                     TemporaryBlockouts.Add(t);
                     Logger.Info(go.name);
                 }
@@ -116,7 +120,7 @@ namespace SwiftNPCs.NavGeometry
             if (!Directory.Exists(DirectoryPath))
                 Directory.CreateDirectory(DirectoryPath);
 
-            File.WriteAllBytes(Path.Combine(DirectoryPath, ro.Zone + "." + ro.Shape + "." + ro.Name + ".json"), JsonSerializer.Serialize(ro));
+            File.WriteAllBytes(Path.Combine(DirectoryPath, ro.Name + ".json"), JsonSerializer.Serialize(ro));
         }
 
         public static void SaveNavGeometry()

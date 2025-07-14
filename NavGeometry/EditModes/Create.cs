@@ -10,6 +10,8 @@ namespace SwiftNPCs.NavGeometry.EditModes
         Player editingPlayer;
         Vector3 point;
 
+        public override string Name => "Create Geometry";
+
         public override NavGeometryEditor.EditAction Action(Player p, bool hasHit, RaycastHit hit)
         {
             if (currentEdit != null)
@@ -29,6 +31,7 @@ namespace SwiftNPCs.NavGeometry.EditModes
                 return default;
 
             PrimitiveObjectToy toy = NavGeometryManager.Spawn(p.Room, p.Room.Position, Quaternion.LookRotation(hit.normal, Vector3.up), Vector3.one);
+            toy.GameObject.name += "(NavGeometry)";
             currentEdit = toy;
             currentEdit.IsStatic = false;
             currentEdit.Base.NetworkPrimitiveFlags = AdminToys.PrimitiveFlags.Visible;

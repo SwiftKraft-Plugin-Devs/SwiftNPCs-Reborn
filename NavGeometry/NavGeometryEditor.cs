@@ -127,6 +127,7 @@ namespace SwiftNPCs.NavGeometry
                     return;
 
                 CurrentMode++;
+                ev.Player.SendHint(EditModes[CurrentMode].Name, 10f);
             }
 
             public void ReloadingWeapon(PlayerReloadingWeaponEventArgs ev)
@@ -143,6 +144,8 @@ namespace SwiftNPCs.NavGeometry
         public abstract class EditModeBase
         {
             public Editor Parent { get; private set; }
+
+            public abstract string Name { get; }
 
             public void Init(Editor parent) => Parent = parent;
 
