@@ -32,7 +32,7 @@ namespace SwiftNPCs.NavGeometry
                 Vector3 worldPosition = t.TransformPoint(prim.Position);
                 Quaternion worldRotation = prim.Rotation * t.rotation;
 
-                PrimitiveObjectToy obj = NavGeometryManager.SpawnPrim(prim.Type, worldPosition, worldRotation, prim.Scale);
+                PrimitiveObjectToy obj = SpawnPrim(prim.Type, worldPosition, worldRotation, prim.Scale);
                 obj.GameObject.name += "(NavGeometry)";
                 return obj;
             }

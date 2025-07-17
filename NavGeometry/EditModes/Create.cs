@@ -27,27 +27,25 @@ namespace SwiftNPCs.NavGeometry.EditModes
                 return default;
             }
 
-            if (p.Room == null || !hasHit)
+            Room r = Room.GetRoomAtPosition(hit.normal);
+
+            if (r == null || !hasHit)
                 return default;
 
-            PrimitiveObjectToy toy = NavGeometryManager.Spawn(p.Room, p.Room.Position, Quaternion.LookRotation(hit.normal, Vector3.up), Vector3.one);
+            PrimitiveObjectToy toy = NavGeometryManager.Spawn(r, p.Room.Position, Quaternion.LookRotation(hit.normal, Vector3.up), Vector3.one);
             toy.GameObject.name += "(NavGeometry)";
             currentEdit = toy;
             currentEdit.IsStatic = false;
             currentEdit.Base.NetworkPrimitiveFlags = AdminToys.PrimitiveFlags.Visible;
             editingPlayer = p;
-            editingRoom = p.Room;
+            editingRoom = r;
             point = hit.point;
 
             void undo()
             {
                 toy.Destroy();
-                editingPlayer = null;
-                if (editingRoom != null)
-                    NavGeometryManager.SaveNavGeometry(editingRoom);
-                editingRoom = null;
-                currentEdit = null;
-                point = default;
+                if (r != null)
+                    NavGeometryManager.SaveNavGeometry(r);
             }
 
             return new(undo);
