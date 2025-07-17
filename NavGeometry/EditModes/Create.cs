@@ -27,7 +27,7 @@ namespace SwiftNPCs.NavGeometry.EditModes
                 return default;
             }
 
-            Room r = Room.GetRoomAtPosition(hit.normal);
+            Room r = Room.GetRoomAtPosition(hit.point);
 
             if (r == null || !hasHit)
                 return default;
