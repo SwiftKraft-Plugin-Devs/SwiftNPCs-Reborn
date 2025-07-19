@@ -64,8 +64,8 @@ namespace SwiftNPCs
         {
             Timing.CallDelayed(0.25f, static () =>
             {
-                NavGeometryManager.LoadNavGeometry();
-                NavGeometryManager.BlockoutConnectors();
+                //NavGeometryManager.LoadNavGeometry();
+                //NavGeometryManager.BlockoutConnectors();
                 BuildNavMesh();
                 //NavGeometryManager.RemoveNavGeometry();
                 //RemoveBlockouts();
