@@ -30,7 +30,7 @@ namespace SwiftNPCs.NavGeometry
             {
                 Transform t = r.Transform; // assuming Room has a Transform
                 Vector3 worldPosition = t.TransformPoint(prim.Position);
-                Quaternion worldRotation = prim.Rotation * t.rotation;
+                Quaternion worldRotation = t.rotation * prim.Rotation;
 
                 PrimitiveObjectToy obj = SpawnPrim(prim.Type, worldPosition, worldRotation, prim.Scale);
                 obj.GameObject.name += "(NavGeometry)";
