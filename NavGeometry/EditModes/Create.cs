@@ -1,4 +1,5 @@
 ﻿using LabApi.Features.Wrappers;
+using MEC;
 using UnityEngine;
 
 namespace SwiftNPCs.NavGeometry.EditModes
@@ -18,12 +19,13 @@ namespace SwiftNPCs.NavGeometry.EditModes
             {
                 editingPlayer = null;
                 currentEdit.Base.NetworkPrimitiveFlags = AdminToys.PrimitiveFlags.Collidable | AdminToys.PrimitiveFlags.Visible;
-                currentEdit.IsStatic = true;
+                PrimitiveObjectToy t = currentEdit;
                 currentEdit = null;
                 if (editingRoom != null)
                     NavGeometryManager.SaveNavGeometry(editingRoom);
                 editingRoom = null;
                 point = default;
+                Timing.CallDelayed(0.1f, () => t.IsStatic = true);
                 return default;
             }
 

@@ -2,19 +2,14 @@
 using LabApi.Events.Arguments.ServerEvents;
 using LabApi.Events.Handlers;
 using LabApi.Features;
-using LabApi.Features.Wrappers;
 using LabApi.Loader.Features.Plugins;
 using LabApi.Loader.Features.Plugins.Enums;
-using MapGeneration;
-using MapGeneration.RoomConnectors;
 using MEC;
 using SwiftNPCs.Commands;
 using SwiftNPCs.Features;
 using SwiftNPCs.NavGeometry;
 using SwiftNPCs.NavGeometry.EditModes;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 using Logger = LabApi.Features.Console.Logger;
@@ -56,6 +51,7 @@ namespace SwiftNPCs
 
             NavGeometryEditor.RegisterEditMode<Create>();
             NavGeometryEditor.RegisterEditMode<Delete>();
+            NavGeometryEditor.RegisterEditMode<NavGeometry.EditModes.Rotate>();
 
             //HarmonyManager.Enable();
         }
@@ -98,7 +94,7 @@ namespace SwiftNPCs
             settings.agentClimb = 0.21f;
             settings.agentHeight = 0.83f;
             settings.agentSlope = 45f;
-            settings.agentRadius = 0.25f;
+            settings.agentRadius = 0.2f;
 
             NavMeshSurface.useGeometry = NavMeshCollectGeometry.PhysicsColliders;
             NavMeshSurface.collectObjects = CollectObjects.All;

@@ -1,6 +1,5 @@
 ﻿using LabApi.Features.Wrappers;
 using LabApi.Loader;
-using MapGeneration;
 using MapGeneration.RoomConnectors;
 using System.Collections.Generic;
 using System.IO;
@@ -80,7 +79,7 @@ namespace SwiftNPCs.NavGeometry
                 if (!ContainsName(go.name, bannedKeywords))
                 {
                     PrimitiveObjectToy t = SpawnPrim(PrimitiveType.Cube, go.bounds.center, Quaternion.identity, go.bounds.size);
-                    
+
                     TemporaryBlockouts.Add(t);
                     Logger.Info(go.name);
                 }
@@ -179,7 +178,8 @@ namespace SwiftNPCs.NavGeometry
                 return;
 
             for (int i = 0; i < NavGeometry[room].Count; i++)
-                NavGeometry[room][i].Destroy();
+                if (NavGeometry[room][i] != null && NavGeometry[room][i].Base != null)
+                    NavGeometry[room][i].Destroy();
 
             NavGeometry.Remove(room);
         }
