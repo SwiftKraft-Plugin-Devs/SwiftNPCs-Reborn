@@ -10,7 +10,9 @@ namespace SwiftNPCs.NavGeometry.EditModes
 
         public override NavGeometryEditor.EditAction Action(Player p, bool hasHit, RaycastHit hit)
         {
-            if (p.Room == null || !hasHit || !hit.collider.gameObject.name.Contains("(NavGeometry)") || !hit.collider.gameObject.TryGetComponent(out AdminToys.PrimitiveObjectToy comp))
+            if (p.Room == null || !hasHit 
+                || !hit.collider.gameObject.name.Contains("(NavGeometry)") 
+                || !hit.collider.gameObject.TryGetComponent(out AdminToys.PrimitiveObjectToy comp))
                 return default;
 
             PrimitiveObjectToy prim = PrimitiveObjectToy.Get(comp);
