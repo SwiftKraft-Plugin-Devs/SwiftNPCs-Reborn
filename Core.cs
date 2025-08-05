@@ -52,21 +52,12 @@ namespace SwiftNPCs
             NavGeometryEditor.RegisterEditMode<Create>();
             NavGeometryEditor.RegisterEditMode<Delete>();
             NavGeometryEditor.RegisterEditMode<NavGeometry.EditModes.Rotate>();
+            NavGeometryEditor.RegisterEditMode<Move>();
 
             //HarmonyManager.Enable();
         }
 
-        private void MapGenerated(MapGeneratedEventArgs ev)
-        {
-            Timing.CallDelayed(0.25f, static () =>
-            {
-                NavGeometryManager.LoadNavGeometry();
-                NavGeometryManager.BlockoutConnectors();
-                BuildNavMesh();
-                //NavGeometryManager.RemoveNavGeometry();
-                //RemoveBlockouts();
-            });
-        }
+        private void MapGenerated(MapGeneratedEventArgs ev) => Timing.CallDelayed(0.25f, BuildNavMesh);
 
         internal void OnPlayerShotWeapon(PlayerShotWeaponEventArgs ev)
         {
@@ -81,6 +72,9 @@ namespace SwiftNPCs
 
         public static void BuildNavMesh()
         {
+            NavGeometryManager.LoadNavGeometry();
+            NavGeometryManager.BlockoutConnectors();
+
             if (NavMeshSurface != null)
             {
                 NavMeshSurface.RemoveData();
@@ -107,6 +101,9 @@ namespace SwiftNPCs
             NavMeshSurface.BuildNavMesh();
 
             Logger.Info("NavMesh Built! ");
+
+            NavGeometryManager.RemoveNavGeometry();
+            NavGeometryManager.RemoveBlockouts();
         }
 
         public override void Disable()

@@ -32,7 +32,7 @@ namespace SwiftNPCs.Features.Components
 
         public Quaternion CurrentLookRotation { get; protected set; }
 
-        public bool WishJump { get => Motor.WantsToJump; set => Motor.WantsToJump = value; }
+        public bool WishJump { get => Motor.JumpController.WantsToJump; set => Motor.JumpController.WantsToJump = value; }
 
         public IFpcRole Role { get; protected set; }
 

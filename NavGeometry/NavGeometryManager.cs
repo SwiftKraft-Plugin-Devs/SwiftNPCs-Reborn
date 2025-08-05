@@ -88,7 +88,21 @@ namespace SwiftNPCs.NavGeometry
         public static void BlockoutConnectors()
         {
             foreach (SpawnableRoomConnector conn in Object.FindObjectsByType<SpawnableRoomConnector>(FindObjectsSortMode.None))
+            {
                 BlockoutConnectorMeshes(conn, "Doorframe", "Doors", "Collider");
+
+                foreach (MeshCollider go in conn.GetComponentsInChildren<MeshCollider>())
+                {
+                    if (go.name.Contains("Doorframe"))
+                    {
+                        PrimitiveObjectToy t = SpawnPrim(PrimitiveType.Cube, go.transform.position + go.transform.right * 1.4f + Vector3.up, conn.transform.rotation, new(1.4f, 2f, 0.25f));
+                        TemporaryBlockouts.Add(t);
+                        t = SpawnPrim(PrimitiveType.Cube, go.transform.position - go.transform.right * 1.4f + Vector3.up, conn.transform.rotation, new(1.4f, 2f, 0.25f));
+                        TemporaryBlockouts.Add(t);
+                        break;
+                    }
+                }
+            }
         }
 
         public static List<SavedPrimitive> Convert(Room r, List<PrimitiveObjectToy> toys)
@@ -107,6 +121,13 @@ namespace SwiftNPCs.NavGeometry
             PrimitiveObjectToy toy = PrimitiveObjectToy.Create(pos, rot, scale, networkSpawn: false);
             toy.Base.NetworkPrimitiveType = type;
             toy.Spawn();
+            return toy;
+        }
+
+        public static PrimitiveObjectToy Spawn(Room room, Vector3 pos, Vector3 dir, Vector3 scale)
+        {
+            PrimitiveObjectToy toy = Spawn(room, pos, Quaternion.identity, scale);
+            toy.Transform.up = dir;
             return toy;
         }
 

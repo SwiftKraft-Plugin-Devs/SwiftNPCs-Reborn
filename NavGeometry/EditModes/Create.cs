@@ -34,7 +34,7 @@ namespace SwiftNPCs.NavGeometry.EditModes
             if (r == null || !hasHit)
                 return default;
 
-            PrimitiveObjectToy toy = NavGeometryManager.Spawn(r, p.Room.Position, Quaternion.LookRotation(hit.normal, Vector3.up), Vector3.one);
+            PrimitiveObjectToy toy = NavGeometryManager.Spawn(r, p.Room.Position, hit.normal, Vector3.one);
             toy.GameObject.name += "(NavGeometry)";
             currentEdit = toy;
             currentEdit.IsStatic = false;

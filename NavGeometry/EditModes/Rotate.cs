@@ -23,7 +23,7 @@ namespace SwiftNPCs.NavGeometry.EditModes
                 return default;
             }
 
-            if (p.Room == null || !hasHit 
+            if (!hasHit 
                 || !hit.collider.gameObject.name.Contains("(NavGeometry)") 
                 || !hit.collider.gameObject.TryGetComponent(out AdminToys.PrimitiveObjectToy comp))
                 return default;
@@ -37,11 +37,11 @@ namespace SwiftNPCs.NavGeometry.EditModes
 
             void undo()
             {
-                PrimitiveObjectToy t = currentEdit;
                 currentEdit = null;
-                Timing.CallDelayed(0.1f, () => t.IsStatic = true);
                 editingPlayer = null;
                 toy.Rotation = original;
+                toy.IsStatic = false;
+                Timing.CallDelayed(0.1f, () => toy.IsStatic = true);
             }
 
             return new(undo);
