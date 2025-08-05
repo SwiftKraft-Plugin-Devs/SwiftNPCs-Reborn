@@ -1,6 +1,8 @@
-﻿using LabApi.Events.Handlers;
+﻿using InventorySystem.Items;
+using LabApi.Events.Handlers;
 using LabApi.Features.Wrappers;
 using SwiftNPCs.Features.Targettables;
+using SwiftNPCs.Utils.Structures;
 
 namespace SwiftNPCs.Features.Personalities
 {
@@ -30,10 +32,11 @@ namespace SwiftNPCs.Features.Personalities
 
         private void OnBeingAttacked(Player obj)
         {
-            if (Core.HasTarget)
+            if (!GetWeapon(out ItemBase item, out _))
                 return;
 
             Core.Target = new TargetablePlayer(obj);
+            Core.Inventory.EquipItem(item);
             Core.SetPersonality(CombatPersonality);
         }
 

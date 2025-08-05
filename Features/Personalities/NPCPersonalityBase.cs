@@ -16,7 +16,7 @@ namespace SwiftNPCs.Features.Personalities
         public virtual bool IsCivilian => Role.GetTeam() == Team.ClassD || Role.GetTeam() == Team.Scientists;
         public virtual bool IsArmed => Core.Inventory.CurrentItem != null && (Core.Inventory.CurrentItem.Category == ItemCategory.Firearm || Core.Inventory.CurrentItem.Category == ItemCategory.SpecialWeapon || Core.Inventory.CurrentItem.Category == ItemCategory.Grenade);
         public virtual bool IsCarryingWeapon => GetWeapon(out _, out _);
-        public virtual bool IsThreat => (IsMilitant || IsArmed || WrapperPlayer.IsSCP) && !WrapperPlayer.IsDisarmed;
+        public virtual bool IsThreat => (!IsCivilian || IsArmed) && !WrapperPlayer.IsDisarmed;
 
         public bool GetWeapon(out ItemBase item, out ushort slot)
         {

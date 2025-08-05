@@ -16,10 +16,10 @@ namespace SwiftNPCs.Features.Personalities
         public float MaxWanderTimer = 15f;
         public float MinWanderTimer = 8f;
 
-        public float MaxWaitTimer = 3f;
-        public float MinWaitTimer = 1f;
+        public float MaxWaitTimer = 5f;
+        public float MinWaitTimer = 3f;
 
-        public float MaxLookTimer = 1.5f;
+        public float MaxLookTimer = 1f;
         public float MinLookTimer = 0.5f;
 
         readonly Timer wanderTimer = new(15f);

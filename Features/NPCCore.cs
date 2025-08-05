@@ -1,6 +1,6 @@
-﻿using Discord;
-using Interactables.Interobjects;
+﻿using Interactables.Interobjects;
 using Interactables.Interobjects.DoorUtils;
+using MEC;
 using SwiftNPCs.Features.Components;
 using SwiftNPCs.Features.Personalities;
 using SwiftNPCs.Features.Targettables;
@@ -24,7 +24,7 @@ namespace SwiftNPCs.Features
         public NPC NPC { get; private set; }
 
         public readonly List<NPCComponent> Components = [];
-        
+
         public Vector3 Position { get => NPC.Position; set => NPC.Position = value; }
 
         public TargetableBase Target
@@ -132,11 +132,19 @@ namespace SwiftNPCs.Features
                 return;
             }
 
-            personality.Init(this);
-            CurrentPersonality?.End();
-            PreviousPersonality = CurrentPersonality;
-            CurrentPersonality = personality;
-            personality.Begin();
+            if (Initialized)
+                transition();
+            else
+                Timing.CallDelayed(0.1f, transition);
+
+            void transition()
+            {
+                personality.Init(this);
+                CurrentPersonality?.End();
+                PreviousPersonality = CurrentPersonality;
+                CurrentPersonality = personality;
+                personality.Begin();
+            }
         }
 
         public T SetPersonality<T>() where T : NPCPersonalityBase, new()
