@@ -1,4 +1,5 @@
 ﻿using Interactables.Interobjects.DoorUtils;
+using LabApi.Events.Handlers;
 using PlayerRoles.FirstPersonControl;
 using RelativePositioning;
 using SwiftNPCs.Utils.Extensions;
@@ -50,12 +51,8 @@ namespace SwiftNPCs.Features.Components
 
         public override void Begin()
         {
-            if (Core.NPC.ReferenceHub.roleManager.CurrentRole is IFpcRole role)
-            {
-                Role = role;
-                Motor = role.FpcModule.Motor;
-                MouseLook = role.FpcModule.MouseLook;
-            }
+            RefreshRole();
+            PlayerEvents.ChangedRole += OnChangedRole;
         }
 
         public override void Tick()
@@ -69,11 +66,34 @@ namespace SwiftNPCs.Features.Components
 
         public override void Frame() => Look();
 
+        public override void Close()
+        {
+            base.Close();
+            PlayerEvents.ChangedRole -= OnChangedRole;
+        }
+
+        private void OnChangedRole(LabApi.Events.Arguments.PlayerEvents.PlayerChangedRoleEventArgs ev)
+        {
+            if (ev.Player != Core.NPC.WrapperPlayer)
+                return;
+            RefreshRole();
+        }
+
+        public void RefreshRole()
+        {
+            if (Core.NPC.ReferenceHub.roleManager.CurrentRole is IFpcRole role)
+            {
+                Role = role;
+                Motor = role.FpcModule.Motor;
+                MouseLook = role.FpcModule.MouseLook;
+            }
+        }
+
         public virtual void Move()
         {
             Motor.ReceivedPosition = new RelativePosition(Core.Position + WishMoveDirection * (MoveSpeed * Time.fixedDeltaTime));
 
-            if (CanOpenDoors && WishMoveDirection != Vector3.zero && Core.TryGetDoor(out DoorVariant door, out bool inVision) && inVision && Vector3.Angle(door.transform.position - Core.Position, WishMoveDirection) <= 45f)
+            if (CanOpenDoors && WishMoveDirection != Vector3.zero && Core.TryGetDoor(out DoorVariant door, out bool inVision) && inVision && Vector3.Angle(door.transform.position - Core.Position, WishMoveDirection) <= 22.5f)
                 Core.TrySetDoor(door, true);
         }
 
