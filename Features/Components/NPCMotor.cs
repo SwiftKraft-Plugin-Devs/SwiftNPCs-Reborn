@@ -76,6 +76,7 @@ namespace SwiftNPCs.Features.Components
         {
             if (ev.Player != Core.NPC.WrapperPlayer)
                 return;
+
             RefreshRole();
         }
 
