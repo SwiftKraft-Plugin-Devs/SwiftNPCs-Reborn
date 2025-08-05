@@ -5,6 +5,8 @@ using SwiftNPCs.Utils.Structures;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System;
+using LabApi.Events.Handlers;
 
 namespace SwiftNPCs.Features.Components
 {
@@ -19,9 +21,17 @@ namespace SwiftNPCs.Features.Components
 
         public float CurrentRange => Core.NPC.WrapperPlayer.Zone == MapGeneration.FacilityZone.Surface ? SurfaceRange : FacilityRange;
 
+        public event Action<Player> OnBeingAttacked;
+
         private readonly Timer timer = new(0.5f);
 
-        public override void Begin() { }
+        public override void Begin() => PlayerEvents.Hurt += OnPlayerHurt;
+
+        public override void Close()
+        {
+            base.Close();
+            PlayerEvents.Hurt -= OnPlayerHurt;
+        }
 
         public override void Tick()
         {
@@ -31,6 +41,14 @@ namespace SwiftNPCs.Features.Components
                 timer.Reset();
                 Search();
             }
+        }
+
+        private void OnPlayerHurt(LabApi.Events.Arguments.PlayerEvents.PlayerHurtEventArgs ev)
+        {
+            if (ev.Player != Core.NPC.WrapperPlayer || ev.Attacker == null)
+                return;
+
+            OnBeingAttacked?.Invoke(ev.Attacker);
         }
 
         public bool TryGetFriendlies(out List<Player> players)

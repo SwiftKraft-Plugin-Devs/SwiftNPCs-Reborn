@@ -1,4 +1,5 @@
-﻿using LabApi.Features.Wrappers;
+﻿using LabApi.Events.Handlers;
+using LabApi.Features.Wrappers;
 using SwiftNPCs.Utils.Extensions;
 using SwiftNPCs.Utils.Structures;
 using System.Collections.Generic;
@@ -25,10 +26,7 @@ namespace SwiftNPCs.Features.Personalities
         readonly Timer waitTimer = new(1f);
         readonly Timer lookTimer = new(0.5f);
 
-        public override void Begin()
-        {
-            Core.Pathfinder.OnStuck += OnPathfinderStuck;
-        }
+        public override void Begin() => Core.Pathfinder.OnStuck += OnPathfinderStuck;
 
         public override void End() => Core.Pathfinder.OnStuck -= OnPathfinderStuck;
 
@@ -44,7 +42,7 @@ namespace SwiftNPCs.Features.Personalities
 
         private void SelectRoom()
         {
-            Room r = Room.List.Where((r) => r != null && r.Base != null && !r.IsDestroyed && r.Zone == Core.NPC.WrapperPlayer.Zone).ToList().GetRandom();
+            Room r = Room.List.Where((r) => r != null && r.Base != null && !r.IsDestroyed && r.Zone == WrapperPlayer.Zone).ToList().GetRandom();
 
             if (r != null)
             {

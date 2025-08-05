@@ -1,5 +1,6 @@
 ﻿using LabApi.Events.Handlers;
-using SwiftNPCs.Features.Components;
+using LabApi.Features.Wrappers;
+using SwiftNPCs.Features.Targettables;
 
 namespace SwiftNPCs.Features.Personalities
 {
@@ -13,22 +14,42 @@ namespace SwiftNPCs.Features.Personalities
         {
             base.Begin();
             PlayerEvents.SendingVoiceMessage += OnSendingVoiceMessage;
+            PlayerEvents.Cuffed += OnCuffed;
+            Core.Scanner.OnBeingAttacked += OnBeingAttacked;
         }
 
         public override void End()
         {
             base.End();
             PlayerEvents.SendingVoiceMessage -= OnSendingVoiceMessage;
+            PlayerEvents.Cuffed -= OnCuffed;
+            Core.Scanner.OnBeingAttacked -= OnBeingAttacked;
+        }
+
+        private void OnCuffed(LabApi.Events.Arguments.PlayerEvents.PlayerCuffedEventArgs ev) => StartFollow(ev.Player);
+
+        private void OnBeingAttacked(Player obj)
+        {
+            if (Core.HasTarget)
+                return;
+
+            Core.Target = new TargetablePlayer(obj);
+            Core.SetPersonality(CombatPersonality);
         }
 
         private void OnSendingVoiceMessage(LabApi.Events.Arguments.PlayerEvents.PlayerSendingVoiceMessageEventArgs ev)
         {
-            if (ev.Player.IsAlive && !ev.Player.IsEnemy(WrapperPlayer))
-            {
-                var follow = FollowPersonality;
-                Core.SetPersonality(follow);
-                follow.FollowTarget = ev.Player;
-            }
+            if (!ev.Player.IsAlive || ev.Player.Faction != WrapperPlayer.Faction || (ev.Player.Position - Core.Position).sqrMagnitude >= 100f)
+                return;
+
+            StartFollow(ev.Player);
+        }
+
+        public void StartFollow(Player player)
+        {
+            var follow = FollowPersonality;
+            Core.SetPersonality(follow);
+            follow.FollowTarget = player;
         }
     }
 }
