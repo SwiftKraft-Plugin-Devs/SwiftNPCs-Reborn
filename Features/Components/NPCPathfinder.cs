@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using SwiftNPCs.Utils.Structures;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using Random = UnityEngine.Random;
 
 namespace SwiftNPCs.Features.Components
 {
@@ -39,6 +42,17 @@ namespace SwiftNPCs.Features.Components
 
         public float RepathTimer = 0.3f;
         float repathTimer;
+
+        readonly Timer stuckTimer = new(0.5f);
+        readonly Timer unstuckTimer = new(0.5f);
+        const float stuckDistance = 1.5f;
+        const int maxStuckCounter = 3;
+        const float stuckDistanceSqr = stuckDistance * stuckDistance;
+        int stuckCounter = 0;
+        Vector3 lastCheckPos;
+
+        public event Action OnStuck;
+
         public NPCPath Path { get; private set; }
 
         public bool IsAtDestination { get; private set; }
@@ -62,6 +76,37 @@ namespace SwiftNPCs.Features.Components
             Destination = Core.Position;
         }
 
+        public void StuckCheck()
+        {
+            stuckTimer.Tick(Time.fixedDeltaTime);
+
+            if (stuckTimer.Ended)
+            {
+                stuckTimer.Reset();
+
+                if ((lastCheckPos - Core.Position).sqrMagnitude <= stuckDistanceSqr)
+                {
+                    stuckCounter++;
+                    if (stuckCounter > maxStuckCounter)
+                    {
+                        OnStuck?.Invoke();
+                        stuckCounter = 0;
+                        StuckAction();
+                    }
+                }
+                else
+                    stuckCounter = 0;
+
+                lastCheckPos = Core.Position;
+            }
+        }
+
+        private void StuckAction()
+        {
+            Motor.WishMoveDirection = (Motor.WishMoveDirection * -2f + Random.insideUnitSphere).normalized;
+            unstuckTimer.Reset();
+        }
+
         public override void Tick()
         {
             //Logger.Info("Destination: " + Destination + ", path corners: " + Path.Waypoints.Count + ", current: " + Path.Current);
@@ -80,24 +125,31 @@ namespace SwiftNPCs.Features.Components
                 return;
             }
 
-            repathTimer -= Time.fixedDeltaTime;
-            if (repathTimer <= 0f)
+            unstuckTimer.Tick(Time.fixedDeltaTime);
+
+            if (unstuckTimer.Ended)
             {
-                Path.UpdatePath();
-                repathTimer = RepathTimer;
+                repathTimer -= Time.fixedDeltaTime;
+                if (repathTimer <= 0f)
+                {
+                    Path.UpdatePath();
+                    repathTimer = RepathTimer;
+                }
+                else
+                    Path.UpdateWaypoint();
+
+                Vector3 waypoint = Path.GetCurrentWaypoint();
+                Vector3 pos = Core.Position;
+                waypoint.y = 0f;
+                pos.y = 0f;
+                Vector3 direction = (waypoint - pos + (LocalAvoidance ? CalculateAvoidance(0.35f) + RequestedForce : Vector3.zero)).normalized;
+
+                Motor.WishMoveDirection = direction;
+                if (LookAtWaypoint)
+                    Motor.WishLookDirection = direction;
+
+                StuckCheck();
             }
-            else
-                Path.UpdateWaypoint();
-
-            Vector3 waypoint = Path.GetCurrentWaypoint();
-            Vector3 pos = Core.Position;
-            waypoint.y = 0f;
-            pos.y = 0f;
-            Vector3 direction = (waypoint - pos + (LocalAvoidance ? CalculateAvoidance(0.35f) + RequestedForce : Vector3.zero)).normalized;
-
-            Motor.WishMoveDirection = direction;
-            if (LookAtWaypoint)
-                Motor.WishLookDirection = direction;
         }
 
         public Vector3 CalculateAvoidance(float avoidRadius)

@@ -88,7 +88,7 @@ namespace SwiftNPCs
             settings.agentClimb = 0.21f;
             settings.agentHeight = 0.83f;
             settings.agentSlope = 45f;
-            settings.agentRadius = 0.2f;
+            settings.agentRadius = 0.22f;
 
             NavMeshSurface.useGeometry = NavMeshCollectGeometry.PhysicsColliders;
             NavMeshSurface.collectObjects = CollectObjects.All;
@@ -102,8 +102,10 @@ namespace SwiftNPCs
 
             Logger.Info("NavMesh Built! ");
 
-            NavGeometryManager.RemoveNavGeometry();
-            NavGeometryManager.RemoveBlockouts();
+            Timing.CallDelayed(0.5f, () => {
+                NavGeometryManager.RemoveNavGeometry();
+                NavGeometryManager.RemoveBlockouts();
+            });
         }
 
         public override void Disable()

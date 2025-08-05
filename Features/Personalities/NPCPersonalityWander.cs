@@ -1,6 +1,7 @@
 ﻿using LabApi.Features.Wrappers;
 using SwiftNPCs.Utils.Extensions;
 using SwiftNPCs.Utils.Structures;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -11,18 +12,25 @@ namespace SwiftNPCs.Features.Personalities
     {
         public abstract NPCPersonalityBase CombatPersonality { get; }
 
-        public float MaxWanderTimer = 20f;
-        public float MinWanderTimer = 10f;
+        public float MaxWanderTimer = 15f;
+        public float MinWanderTimer = 8f;
 
         public float MaxWaitTimer = 3f;
         public float MinWaitTimer = 1f;
 
+        public float MaxLookTimer = 1.5f;
+        public float MinLookTimer = 0.5f;
+
         readonly Timer wanderTimer = new(15f);
         readonly Timer waitTimer = new(1f);
+        readonly Timer lookTimer = new(0.5f);
 
-        public override void Begin() { }
+        public override void Begin()
+        {
+            Core.Pathfinder.OnStuck += OnPathfinderStuck;
+        }
 
-        public override void End() { }
+        public override void End() => Core.Pathfinder.OnStuck -= OnPathfinderStuck;
 
         public override void Tick()
         {
@@ -32,31 +40,62 @@ namespace SwiftNPCs.Features.Personalities
                 Core.SetPersonality(CombatPersonality);
         }
 
+        private void OnPathfinderStuck() => SelectRoom();
+
+        private void SelectRoom()
+        {
+            Room r = Room.List.Where((r) => r != null && r.Base != null && !r.IsDestroyed && r.Zone == Core.NPC.WrapperPlayer.Zone).ToList().GetRandom();
+
+            if (r != null)
+            {
+                Vector3 rand = Random.insideUnitSphere * 3f;
+                rand.y = 0f;
+                Core.Pathfinder.Destination = r.Transform.position + rand;
+                Core.Pathfinder.LookAtWaypoint = true;
+                wanderTimer.Reset(Random.Range(MinWanderTimer, MaxWanderTimer));
+                waitTimer.Reset(Random.Range(MinWaitTimer, MaxWaitTimer));
+            }
+        }
+
+        private void LookAround()
+        {
+            lookTimer.Tick(Time.fixedDeltaTime);
+
+            if (lookTimer.Ended)
+            {
+                Core.Pathfinder.LookAtWaypoint = false;
+                Vector3 dir;
+                if (Random.Range(0f, 1f) < 0.5f && Core.Scanner.TryGetFriendlies(out List<Player> players))
+                {
+                    Player p = players.GetRandom();
+                    dir = p.Position - Core.NPC.WrapperPlayer.Camera.position;
+                }
+                else
+                {
+                    dir = Random.insideUnitSphere;
+                    dir.y *= 0.2f;
+                }
+                    Core.Motor.WishLookDirection = dir;
+                lookTimer.Reset(Random.Range(MinLookTimer, MaxLookTimer));
+            }
+        }
+
         protected virtual void WanderLoop()
         {
             wanderTimer.Tick(Time.fixedDeltaTime);
 
-            if (!Core.HasTarget && (Core.Pathfinder.IsAtDestination || wanderTimer.Ended))
-            {
-                waitTimer.Tick(Time.fixedDeltaTime);
+            if (Core.HasTarget || !Core.Pathfinder.IsAtDestination && !wanderTimer.Ended)
+                return;
 
-                if (!Core.Pathfinder.IsAtDestination)
-                    Core.Pathfinder.Stop();
+            waitTimer.Tick(Time.fixedDeltaTime);
 
-                if (waitTimer.Ended)
-                {
-                    Room r = Room.List.Where((r) => r != null && r.Base != null && !r.IsDestroyed && r.Zone == Core.NPC.WrapperPlayer.Zone).ToList().GetRandom();
-                    if (r != null)
-                    {
-                        Vector3 rand = Random.insideUnitSphere * 4f;
-                        rand.y = 0f;
-                        Core.Pathfinder.Destination = r.Transform.position + rand;
-                        Core.Pathfinder.LookAtWaypoint = true;
-                        wanderTimer.Reset(Random.Range(MinWanderTimer, MaxWanderTimer));
-                        waitTimer.Reset(Random.Range(MinWaitTimer, MaxWaitTimer));
-                    }
-                }
-            }
+            if (!Core.Pathfinder.IsAtDestination)
+                Core.Pathfinder.Stop();
+
+            if (waitTimer.Ended)
+                SelectRoom();
+            else
+                LookAround();
         }
     }
 }

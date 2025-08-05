@@ -74,14 +74,11 @@ namespace SwiftNPCs.NavGeometry
 
         public static void BlockoutConnectorMeshes(SpawnableRoomConnector connector, params string[] bannedKeywords)
         {
-            Logger.Info("Connector spawned: ");
             foreach (MeshCollider go in connector.GetComponentsInChildren<MeshCollider>())
                 if (!ContainsName(go.name, bannedKeywords))
                 {
                     PrimitiveObjectToy t = SpawnPrim(PrimitiveType.Cube, go.bounds.center, Quaternion.identity, go.bounds.size);
-
                     TemporaryBlockouts.Add(t);
-                    Logger.Info(go.name);
                 }
         }
 
@@ -93,13 +90,21 @@ namespace SwiftNPCs.NavGeometry
 
                 foreach (MeshCollider go in conn.GetComponentsInChildren<MeshCollider>())
                 {
+                    Logger.Info(go.name);
                     if (go.name.Contains("Doorframe"))
                     {
-                        PrimitiveObjectToy t = SpawnPrim(PrimitiveType.Cube, go.transform.position + go.transform.right * 1.4f + Vector3.up, conn.transform.rotation, new(1.4f, 2f, 0.25f));
+                        PrimitiveObjectToy t = SpawnPrim(PrimitiveType.Cube, go.transform.position + go.transform.right * 1.6f + Vector3.up, conn.transform.rotation, new(1.8f, 4f, 0.4f));
                         TemporaryBlockouts.Add(t);
-                        t = SpawnPrim(PrimitiveType.Cube, go.transform.position - go.transform.right * 1.4f + Vector3.up, conn.transform.rotation, new(1.4f, 2f, 0.25f));
+                        t = SpawnPrim(PrimitiveType.Cube, go.transform.position - go.transform.right * 1.6f + Vector3.up, conn.transform.rotation, new(1.8f, 4f, 0.4f));
                         TemporaryBlockouts.Add(t);
                         break;
+                    }
+                    else if (go.name == "Collider")
+                    {
+                        PrimitiveObjectToy t = SpawnPrim(PrimitiveType.Cube, go.transform.position + go.transform.up * 2f + Vector3.up, conn.transform.rotation, new(1.5f, 4f, 0.7f));
+                        TemporaryBlockouts.Add(t);
+                        t = SpawnPrim(PrimitiveType.Cube, go.transform.position - go.transform.up * 2f + Vector3.up, conn.transform.rotation, new(1.5f, 4f, 0.7f));
+                        TemporaryBlockouts.Add(t);
                     }
                 }
             }

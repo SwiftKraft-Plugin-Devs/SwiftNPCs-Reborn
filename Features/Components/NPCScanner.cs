@@ -2,7 +2,9 @@
 using PlayerRoles;
 using SwiftNPCs.Features.Targettables;
 using SwiftNPCs.Utils.Structures;
+using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 namespace SwiftNPCs.Features.Components
 {
@@ -13,6 +15,7 @@ namespace SwiftNPCs.Features.Components
 
         public float FacilityRange = 40f;
         public float SurfaceRange = 70f;
+        public float FriendlyRange = 15f;
 
         public float CurrentRange => Core.NPC.WrapperPlayer.Zone == MapGeneration.FacilityZone.Surface ? SurfaceRange : FacilityRange;
 
@@ -29,6 +32,20 @@ namespace SwiftNPCs.Features.Components
                 Search();
             }
         }
+
+        public bool TryGetFriendlies(out List<Player> players)
+        {
+            players = GetFriendlies();
+            return players.Count > 0;
+        }
+
+        public List<Player> GetFriendlies() => [.. 
+            Player.List.Where(
+                p =>
+                    !Core.NPC.WrapperPlayer.IsEnemy(p) &&
+                    (p.Position - Core.Position).sqrMagnitude <= FriendlyRange * FriendlyRange &&
+                    HasLOS(p, out _)
+                )];
 
         public void Search()
         {
