@@ -8,7 +8,7 @@ namespace SwiftNPCs.Features.Targettables
     {
         public override int Priority => (Target == null || Target.ReferenceHub == null || !Target.IsAlive) ? -1 : Target.IsSCP ? 2 : 1;
 
-        public override bool CanTarget => Target != null && Target.ReferenceHub != null && Target.IsAlive && !Target.IsNoclipEnabled && !Target.IsDisarmed && (!Target.TryGetEffect(out Invisible invis) || !invis.IsEnabled);
+        public override bool CanTarget => Target != null && Target.ReferenceHub != null && Target.IsAlive && !Target.IsNoclipEnabled && !Target.IsGodModeEnabled && !Target.IsDisarmed && (!Target.TryGetEffect(out Invisible invis) || !invis.IsEnabled);
 
         public override Vector3 HitPosition => Target.Position;
 
