@@ -102,8 +102,8 @@ namespace SwiftNPCs.Features.Components
                 && player.IsAlive
                 && player.Role.GetFaction() != other.Role.GetFaction()
                 && (!player.IsDisarmed
-                || (player.DisarmedBy != null
-                && player.DisarmedBy.Role.GetFaction() == other.Role.GetFaction()))
+                || player.DisarmedBy == null
+                || player.DisarmedBy.Role.GetFaction() != other.Role.GetFaction())
                 && ((other.Role != RoleTypeId.ClassD
                 && other.Role != RoleTypeId.Scientist)
                 || (other.CurrentItem != null

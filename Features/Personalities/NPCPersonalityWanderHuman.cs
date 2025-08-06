@@ -1,8 +1,8 @@
 ﻿using InventorySystem.Items;
 using LabApi.Events.Handlers;
 using LabApi.Features.Wrappers;
+using MEC;
 using SwiftNPCs.Features.Targettables;
-using SwiftNPCs.Utils.Structures;
 
 namespace SwiftNPCs.Features.Personalities
 {
@@ -28,7 +28,14 @@ namespace SwiftNPCs.Features.Personalities
             Core.Scanner.OnBeingAttacked -= OnBeingAttacked;
         }
 
-        private void OnCuffed(LabApi.Events.Arguments.PlayerEvents.PlayerCuffedEventArgs ev) => StartFollow(ev.Player);
+        private void OnCuffed(LabApi.Events.Arguments.PlayerEvents.PlayerCuffedEventArgs ev)
+        {
+            if (ev.Target != WrapperPlayer)
+                return;
+
+            Core.Target = null;
+            StartFollow(ev.Player);
+        }
 
         private void OnBeingAttacked(Player obj)
         {

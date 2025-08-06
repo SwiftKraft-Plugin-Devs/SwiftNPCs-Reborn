@@ -1,9 +1,12 @@
-﻿using LabApi.Features.Wrappers;
+﻿using LabApi.Features.Console;
+using LabApi.Features.Wrappers;
 using PlayerRoles.FirstPersonControl;
 using SwiftNPCs.Features.Components;
 using SwiftNPCs.Utils.Extensions;
 using SwiftNPCs.Utils.Structures;
+using System.Collections.Generic;
 using UnityEngine;
+using Logger = LabApi.Features.Console.Logger;
 
 namespace SwiftNPCs.Features.Personalities
 {
@@ -36,7 +39,11 @@ namespace SwiftNPCs.Features.Personalities
         public float MinFollowRange = 2f;
         public float SprintRange = 15f;
 
+        public float MaxLookTimer = 4f;
+        public float MinLookTimer = 2f;
+
         readonly Timer followUpdate = new(0.5f);
+        readonly Timer lookTimer = new();
 
         public class Data
         {
@@ -84,8 +91,28 @@ namespace SwiftNPCs.Features.Personalities
             {
                 Core.Pathfinder.Stop();
                 Core.Pathfinder.LookAtWaypoint = false;
-                Core.Motor.WishLookPosition = FollowTarget.Camera.position;
                 CurrentFollowRange = Random.Range(MinFollowRange, MaxFollowRange);
+
+                lookTimer.Tick(Time.fixedDeltaTime);
+
+                if (lookTimer.Ended)
+                {
+                    lookTimer.Reset(Random.Range(MinLookTimer, MaxLookTimer));
+                    Vector3 dir;
+                    if (Random.Range(0f, 1f) < 0.75f && Core.Scanner.TryGetFriendlies(out List<Player> players))
+                    {
+                        Player p = players.GetRandom();
+                        dir = p.Position - Core.NPC.WrapperPlayer.Camera.position;
+                    }
+                    else
+                    {
+                        dir = Random.insideUnitSphere;
+                        dir.y = 0f;
+                    }
+
+                    Core.Motor.WishLookDirection = dir;
+                }
+
                 return;
             }
 

@@ -1,5 +1,4 @@
-﻿using LabApi.Events.Handlers;
-using LabApi.Features.Wrappers;
+﻿using LabApi.Features.Wrappers;
 using SwiftNPCs.Utils.Extensions;
 using SwiftNPCs.Utils.Structures;
 using System.Collections.Generic;
@@ -16,11 +15,11 @@ namespace SwiftNPCs.Features.Personalities
         public float MaxWanderTimer = 15f;
         public float MinWanderTimer = 8f;
 
-        public float MaxWaitTimer = 5f;
-        public float MinWaitTimer = 3f;
+        public float MaxWaitTimer = 4f;
+        public float MinWaitTimer = 2.5f;
 
-        public float MaxLookTimer = 1f;
-        public float MinLookTimer = 0.5f;
+        public float MaxLookTimer = 2f;
+        public float MinLookTimer = 1.5f;
 
         readonly Timer wanderTimer = new(15f);
         readonly Timer waitTimer = new(1f);
@@ -71,9 +70,10 @@ namespace SwiftNPCs.Features.Personalities
                 else
                 {
                     dir = Random.insideUnitSphere;
-                    dir.y *= 0.2f;
+                    dir.y = 0f;
                 }
-                    Core.Motor.WishLookDirection = dir;
+
+                Core.Motor.WishLookDirection = dir.normalized;
                 lookTimer.Reset(Random.Range(MinLookTimer, MaxLookTimer));
             }
         }
