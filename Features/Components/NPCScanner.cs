@@ -59,7 +59,7 @@ namespace SwiftNPCs.Features.Components
 
         public List<Player> GetFriendlies() => [.. 
             Player.List.Where(
-                p =>
+                p => p.IsAlive &&
                     !Core.NPC.WrapperPlayer.IsEnemy(p) &&
                     (p.Position - Core.Position).sqrMagnitude <= FriendlyRange * FriendlyRange &&
                     HasLOS(p, out _)

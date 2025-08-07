@@ -73,7 +73,7 @@ namespace SwiftNPCs.Features.Personalities
                     dir.y = 0f;
                 }
 
-                Core.Motor.WishLookDirection = dir.normalized;
+                Core.Motor.WishLookDirection = dir;
                 lookTimer.Reset(Random.Range(MinLookTimer, MaxLookTimer));
             }
         }
