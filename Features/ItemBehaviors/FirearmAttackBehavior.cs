@@ -22,20 +22,41 @@ namespace SwiftNPCs.Features.ItemBehaviors
 
                 attacking = value;
                 if (attacking)
-                {
                     Item.DummyEmulator.AddEntry(ActionName.Shoot, false);
-                    Item.DummyEmulator.AddEntry(ActionName.Zoom, false);
-                }
                 else
-                {
                     Item.DummyEmulator.RemoveEntry(ActionName.Shoot);
-                    Item.DummyEmulator.RemoveEntry(ActionName.Zoom);
-                }
             }
         }
 
+        public bool Aiming
+        {
+            get => aiming;
+            set
+            {
+                if (aiming == value)
+                    return;
+
+                aiming = value;
+                if (aiming)
+                    Item.DummyEmulator.AddEntry(ActionName.Zoom, false);
+                else
+                    Item.DummyEmulator.RemoveEntry(ActionName.Zoom);
+            }
+        }
+
+        public float MinSprayTime = 2f;
+        public float MaxSprayTime = 4f;
+
+        public float MinSprayCooldown = 0.2f;
+        public float MaxSprayCooldown = 1f;
+
+        public float HipfireDistance = 5f;
+
         private readonly Timer tacticalReloadTimer = new(4f);
+        private readonly Timer sprayTimer = new(2.5f);
+        private readonly Timer sprayCooldownTimer = new(1f);
         private bool attacking;
+        private bool aiming;
 
         public override void Begin()
         {
@@ -51,12 +72,30 @@ namespace SwiftNPCs.Features.ItemBehaviors
         {
             if (!Reloader.IsReloading)
             {
+                bool targetFar = !User.Core.TargetWithinDistance(HipfireDistance);
+                Aiming = Attacking && targetFar;
+
                 if (User.Core.HasTarget && User.Core.Scanner.HasLOS(User.Core.Target, out Vector3 sight, true))
                 {
-                    User.Core.Motor.WishLookPosition = sight;
-                    Shoot();
-
                     tacticalReloadTimer.Reset();
+                    User.Core.Motor.WishLookPosition = sight;
+
+                    if (targetFar)
+                    {
+                        sprayTimer.Tick(Time.fixedDeltaTime);
+
+                        if (sprayCooldownTimer.Ended)
+                        {
+                            sprayTimer.Reset(Random.Range(MinSprayTime, MaxSprayTime));
+                            sprayCooldownTimer.Reset(Random.Range(MinSprayCooldown, MaxSprayCooldown));
+                        }
+                        else if (sprayTimer.Ended)
+                            sprayCooldownTimer.Tick(Time.fixedDeltaTime);
+                        else
+                            Shoot();
+                    }
+                    else
+                        Shoot();
                 }
                 else
                     Attacking = false;

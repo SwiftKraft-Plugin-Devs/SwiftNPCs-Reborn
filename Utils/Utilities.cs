@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace SwiftNPCs.Utils
 {
@@ -49,6 +50,24 @@ namespace SwiftNPCs.Utils
         {
             component = comp.GetComponentInParent<T>();
             return component != null;
+        }
+
+        public static Vector3 GetRandomOppositeHorizontalDirection(this Vector3 forward)
+        {
+            // Flatten input to horizontal (XZ) and normalize
+            forward.y = 0f;
+            forward.Normalize();
+
+            // Generate random horizontal direction
+            float angle = Random.Range(0f, 360f);
+            Vector3 random = new(Mathf.Cos(angle * Mathf.Deg2Rad), 0f, Mathf.Sin(angle * Mathf.Deg2Rad));
+
+            // If it's facing toward the same direction, reflect across the plane perpendicular to forward
+            float dot = Vector3.Dot(random, forward);
+            if (dot > 0f)
+                random -= 2f * dot * forward;
+
+            return random.normalized;
         }
     }
 }

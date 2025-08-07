@@ -1,9 +1,9 @@
-﻿using SwiftNPCs.Utils.Structures;
+﻿using SwiftNPCs.Utils;
+using SwiftNPCs.Utils.Structures;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-using Random = UnityEngine.Random;
 
 namespace SwiftNPCs.Features.Components
 {
@@ -44,7 +44,7 @@ namespace SwiftNPCs.Features.Components
         float repathTimer;
 
         readonly Timer stuckTimer = new(0.5f);
-        readonly Timer unstuckTimer = new(0.5f);
+        readonly Timer unstuckTimer = new(0.3f);
         const float stuckDistance = 1.5f;
         const int maxStuckCounter = 3;
         const float stuckDistanceSqr = stuckDistance * stuckDistance;
@@ -103,7 +103,7 @@ namespace SwiftNPCs.Features.Components
 
         private void StuckAction()
         {
-            Motor.WishMoveDirection = (Motor.WishMoveDirection * -2f + Random.insideUnitSphere).normalized;
+            Motor.WishMoveDirection = Motor.WishMoveDirection.GetRandomOppositeHorizontalDirection();
             unstuckTimer.Reset();
         }
 
