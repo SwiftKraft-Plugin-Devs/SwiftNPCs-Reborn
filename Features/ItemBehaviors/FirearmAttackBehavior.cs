@@ -83,12 +83,12 @@ namespace SwiftNPCs.Features.ItemBehaviors
         {
             if (!Reloader.IsReloading)
             {
-                float targetDistance = User.Core.TargetDistance;
-                bool targetFar = targetDistance >= HipfireDistance;
-                Aiming = targetFar;
-
                 if (User.Core.HasTarget && User.Core.Scanner.HasLOS(User.Core.Target, out Vector3 sight, true))
                 {
+                    float targetDistance = User.Core.TargetDistance;
+                    bool targetFar = targetDistance >= HipfireDistance;
+                    Aiming = targetFar;
+
                     tacticalReloadTimer.Reset();
                     User.Core.Motor.WishLookPosition = sight + Vector3.Lerp(default, offset, Mathf.InverseLerp(MinInaccuracyDistance, MaxInaccuracyDistance, targetDistance));
 
@@ -117,7 +117,10 @@ namespace SwiftNPCs.Features.ItemBehaviors
                         Shoot();
                 }
                 else
+                {
                     Attacking = false;
+                    Aiming = false;
+                }
 
                 if (Ammo.AmmoStored < Ammo.AmmoMax)
                 {

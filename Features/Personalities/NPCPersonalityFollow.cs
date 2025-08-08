@@ -1,12 +1,10 @@
-﻿using LabApi.Features.Console;
-using LabApi.Features.Wrappers;
+﻿using LabApi.Features.Wrappers;
 using PlayerRoles.FirstPersonControl;
 using SwiftNPCs.Features.Components;
 using SwiftNPCs.Utils.Extensions;
 using SwiftNPCs.Utils.Structures;
 using System.Collections.Generic;
 using UnityEngine;
-using Logger = LabApi.Features.Console.Logger;
 
 namespace SwiftNPCs.Features.Personalities
 {
@@ -57,6 +55,7 @@ namespace SwiftNPCs.Features.Personalities
                 Core.TryAddData(DataID, out CurrentData);
 
             CurrentFollowRange = Random.Range(MinFollowRange, MaxFollowRange);
+            Core.Pathfinder.OnStuck += OnStuck;
         }
 
         public override void Tick()
@@ -67,15 +66,15 @@ namespace SwiftNPCs.Features.Personalities
                 return;
             }
 
+            if (!HasFollowTarget)
+                return;
+
             if (!FollowTarget.IsAlive || FollowTarget.IsEnemy(WrapperPlayer))
             {
                 FollowTarget = null;
                 Core.SetPersonality(new NPCPersonalityWanderHuman());
                 return;
             }
-
-            if (!HasFollowTarget)
-                return;
 
             followUpdate.Tick(Time.fixedDeltaTime);
 
@@ -128,7 +127,9 @@ namespace SwiftNPCs.Features.Personalities
 
         public override void Begin() { }
 
-        public override void End() { }
+        public override void End() => Core.Pathfinder.OnStuck -= OnStuck;
+
+        private void OnStuck() => Core.Motor.WishJump = true;
 
         public void UpdateDestination()
         {

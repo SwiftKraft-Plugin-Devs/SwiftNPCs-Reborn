@@ -1,8 +1,10 @@
 ﻿using InventorySystem.Items;
 using LabApi.Events.Handlers;
 using LabApi.Features.Wrappers;
-using MEC;
 using SwiftNPCs.Features.Targettables;
+using System.Collections.Generic;
+using System.Linq;
+using Utils.NonAllocLINQ;
 
 namespace SwiftNPCs.Features.Personalities
 {
@@ -18,6 +20,23 @@ namespace SwiftNPCs.Features.Personalities
             PlayerEvents.SendingVoiceMessage += OnSendingVoiceMessage;
             PlayerEvents.Cuffed += OnCuffed;
             Core.Scanner.OnBeingAttacked += OnBeingAttacked;
+        }
+
+        public override void Tick()
+        {
+            base.Tick();
+
+            if (IsThreat && !IsArmed && GetWeapon(out ItemBase item, out _))
+                Core.Inventory.EquipItem(item);
+
+            Core.Motor.MoveState = Core.HasTarget && (!IsArmed || !IsThreat) ? PlayerRoles.FirstPersonControl.PlayerMovementState.Sprinting : PlayerRoles.FirstPersonControl.PlayerMovementState.Walking;
+
+            if (IsCivilian && !IsArmed && Core.Scanner.TryGetFriendlies(out List<Player> players))
+            {
+                Player p = players.FirstOrDefault((p) => p.Faction == WrapperPlayer.Faction && (p.Team == PlayerRoles.Team.FoundationForces || p.Team == PlayerRoles.Team.ChaosInsurgency));
+                if (p != null)
+                    StartFollow(p);
+            }
         }
 
         public override void End()

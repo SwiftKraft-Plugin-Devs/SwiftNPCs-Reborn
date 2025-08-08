@@ -69,8 +69,11 @@ namespace SwiftNPCs.Features.Personalities
                 }
                 else
                 {
-                    dir = Random.insideUnitSphere;
-                    dir.y = 0f;
+                    Vector2 rand = Random.insideUnitCircle;
+                    dir = new(rand.x, 0f, rand.y);
+
+                    if (dir.sqrMagnitude == 0f)
+                        dir = Vector3.one * (Random.Range(0, 1f) < 0.5f ? -1f : 1f);
                 }
 
                 Core.Motor.WishLookDirection = dir;

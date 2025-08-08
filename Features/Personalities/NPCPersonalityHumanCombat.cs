@@ -35,6 +35,8 @@ namespace SwiftNPCs.Features.Personalities
                 return;
             }
 
+            Core.Motor.MoveState = chasing ? PlayerRoles.FirstPersonControl.PlayerMovementState.Sprinting : PlayerRoles.FirstPersonControl.PlayerMovementState.Walking;
+
             CheckTargetLoop();
             WeaponLoop();
         }

@@ -217,9 +217,9 @@ namespace SwiftNPCs.Features
             return door != null;
         }
 
-        public float TargetDistance => (Target.PivotPosition - Position).magnitude;
+        public float TargetDistance => HasTarget ? (Target.PivotPosition - Position).magnitude : Mathf.Infinity;
 
-        public bool TargetWithinDistance(float dist) => Target != null && (Target.PivotPosition - Position).sqrMagnitude <= dist * dist;
+        public bool TargetWithinDistance(float dist) => HasTarget && (Target.PivotPosition - Position).sqrMagnitude <= dist * dist;
 
         public float GetDotProduct(Vector3 position) => Vector3.Dot(Motor.CurrentLookRotation * Vector3.forward, (position - transform.position).normalized);
     }
