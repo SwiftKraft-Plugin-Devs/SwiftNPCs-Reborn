@@ -44,13 +44,19 @@ namespace SwiftNPCs.Features.ItemBehaviors
             }
         }
 
-        public float MinSprayTime = 2f;
-        public float MaxSprayTime = 4f;
+        public float MinSprayTime = 0.5f;
+        public float MaxSprayTime = 1.5f;
 
         public float MinSprayCooldown = 0.2f;
-        public float MaxSprayCooldown = 1f;
+        public float MaxSprayCooldown = 0.6f;
 
-        public float HipfireDistance = 5f;
+        public float HipfireDistance = Random.Range(3f, 6f);
+
+        public float MaxInaccuracy = 1.5f;
+        public float MinInaccuracyDistance = 7f;
+        public float MaxInaccuracyDistance = 30f;
+
+        public float ShootDotProduct = 0.75f;
 
         private readonly Timer tacticalReloadTimer = new(4f);
         private readonly Timer sprayTimer = new(2.5f);
@@ -58,12 +64,16 @@ namespace SwiftNPCs.Features.ItemBehaviors
         private bool attacking;
         private bool aiming;
 
+        private Vector3 offset;
+
         public override void Begin()
         {
             if (Item.TryGetModule(out IReloaderModule mod1))
                 Reloader = mod1;
             if (Item.TryGetModule(out IPrimaryAmmoContainerModule mod2))
                 Ammo = mod2;
+
+            offset = Random.insideUnitSphere * MaxInaccuracy;
         }
 
         public override void End() { }
@@ -72,27 +82,35 @@ namespace SwiftNPCs.Features.ItemBehaviors
         {
             if (!Reloader.IsReloading)
             {
-                bool targetFar = !User.Core.TargetWithinDistance(HipfireDistance);
-                Aiming = Attacking && targetFar;
+                float targetDistance = User.Core.TargetDistance;
+                bool targetFar = targetDistance >= HipfireDistance;
+                Aiming = targetFar;
 
                 if (User.Core.HasTarget && User.Core.Scanner.HasLOS(User.Core.Target, out Vector3 sight, true))
                 {
                     tacticalReloadTimer.Reset();
-                    User.Core.Motor.WishLookPosition = sight;
+                    User.Core.Motor.WishLookPosition = sight + Vector3.Lerp(default, offset, Mathf.InverseLerp(MinInaccuracyDistance, MaxInaccuracyDistance, targetDistance));
 
                     if (targetFar)
                     {
-                        sprayTimer.Tick(Time.fixedDeltaTime);
-
-                        if (sprayCooldownTimer.Ended)
+                        if (!sprayCooldownTimer.Ended)
                         {
-                            sprayTimer.Reset(Random.Range(MinSprayTime, MaxSprayTime));
-                            sprayCooldownTimer.Reset(Random.Range(MinSprayCooldown, MaxSprayCooldown));
-                        }
-                        else if (sprayTimer.Ended)
+                            Attacking = false;
                             sprayCooldownTimer.Tick(Time.fixedDeltaTime);
+                        }
                         else
-                            Shoot();
+                        {
+                            sprayTimer.Tick(Time.fixedDeltaTime);
+
+                            if (sprayTimer.Ended)
+                            {
+                                sprayTimer.Reset(Random.Range(MinSprayTime, MaxSprayTime));
+                                sprayCooldownTimer.Reset(Random.Range(MinSprayCooldown, MaxSprayCooldown));
+                                offset = Random.insideUnitSphere * MaxInaccuracy;
+                            }
+                            else if (User.Core.GetDotProduct(sight) >= ShootDotProduct)
+                                Shoot();
+                        }
                     }
                     else
                         Shoot();

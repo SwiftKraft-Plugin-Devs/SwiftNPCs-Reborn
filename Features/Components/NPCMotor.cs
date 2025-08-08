@@ -42,7 +42,7 @@ namespace SwiftNPCs.Features.Components
         public FpcMotor Motor { get; protected set; }
         public FpcMouseLook MouseLook { get; protected set; }
 
-        public float LookTime = 0.5f;
+        public float MaxLookTime = 0.3f;
         public float MoveSpeed = 30f;
 
         public bool CanOpenDoors = true;
@@ -100,7 +100,7 @@ namespace SwiftNPCs.Features.Components
 
         public virtual void Look()
         {
-            CurrentLookRotation = CurrentLookRotation.SmoothDamp(WishLookRotation, ref lookVel, LookTime);
+            CurrentLookRotation = CurrentLookRotation.SmoothDamp(WishLookRotation, ref lookVel, MaxLookTime);
             MouseLook.LookAtDirection(CurrentLookRotation * Vector3.forward);
         }
     }
