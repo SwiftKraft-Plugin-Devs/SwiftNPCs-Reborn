@@ -180,6 +180,7 @@ namespace SwiftNPCs.Features
                 door = checkpoint;
 
             float st = door.GetExactState();
+
             if (door.NetworkTargetState == state || (st > 0f && st < 1f))
                 return false;
 

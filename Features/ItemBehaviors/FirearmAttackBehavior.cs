@@ -37,6 +37,7 @@ namespace SwiftNPCs.Features.ItemBehaviors
                     return;
 
                 aiming = value;
+
                 if (aiming)
                     Item.DummyEmulator.AddEntry(ActionName.Zoom, false);
                 else
@@ -50,7 +51,7 @@ namespace SwiftNPCs.Features.ItemBehaviors
         public float MinSprayCooldown = 0.2f;
         public float MaxSprayCooldown = 0.6f;
 
-        public float HipfireDistance = Random.Range(3f, 6f);
+        public float HipfireDistance = Random.Range(2f, 4f);
 
         public float MaxInaccuracy = 1.5f;
         public float MinInaccuracyDistance = 7f;

@@ -94,7 +94,7 @@ namespace SwiftNPCs.Features.Components
         {
             Motor.ReceivedPosition = new RelativePosition(Core.Position + WishMoveDirection * (MoveSpeed * Time.fixedDeltaTime));
 
-            if (CanOpenDoors && WishMoveDirection != Vector3.zero && Core.TryGetDoor(out DoorVariant door, out bool inVision) && inVision && Vector3.Angle(door.transform.position - Core.Position, WishMoveDirection) <= 22.5f)
+            if (CanOpenDoors && WishMoveDirection != Vector3.zero && Core.TryGetDoor(out DoorVariant door, out bool inVision) && inVision && Vector3.Angle(door.transform.position - Core.Position, WishMoveDirection) <= 45f)
                 Core.TrySetDoor(door, true);
         }
 
