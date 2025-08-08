@@ -49,6 +49,7 @@ namespace SwiftNPCs.Features
             ReferenceHub = refHub;
             NPCManager.AllNPCs.Add(this);
             PlayerEvents.Death += OnDeath;
+            PlayerEvents.Left += OnLeft;
             Core = refHub.gameObject.AddComponent<NPCCore>();
             Core.Setup(this);
             Timing.CallDelayed(0.05f, () =>
@@ -63,17 +64,27 @@ namespace SwiftNPCs.Features
         public virtual void Destroy()
         {
             PlayerEvents.Death -= OnDeath;
+            PlayerEvents.Left -= OnLeft;
             NPCManager.AllNPCs.Remove(this);
-            NetworkServer.Destroy(ReferenceHub.gameObject);
+            if (ReferenceHub != null)
+                NetworkServer.Destroy(ReferenceHub.gameObject);
         }
 
         protected virtual void OnDeath(PlayerDeathEventArgs ev)
         {
-            if (ev.Player.ReferenceHub != ReferenceHub)
+            if (ev.Player != WrapperPlayer)
                 return;
 
             if (!Respawnable)
                 Destroy();
+        }
+
+        protected virtual void OnLeft(PlayerLeftEventArgs ev)
+        {
+            if (ev.Player != WrapperPlayer)
+                return;
+
+            Destroy();
         }
     }
 }

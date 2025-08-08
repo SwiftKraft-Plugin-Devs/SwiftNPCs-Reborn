@@ -45,7 +45,7 @@ namespace SwiftNPCs.Features.Components
 
         readonly Timer stuckTimer = new(0.5f);
         readonly Timer unstuckTimer = new(0.3f);
-        const float stuckDistance = 1.5f;
+        const float stuckDistance = 0.5f;
         const int maxStuckCounter = 3;
         const float stuckDistanceSqr = stuckDistance * stuckDistance;
         int stuckCounter = 0;

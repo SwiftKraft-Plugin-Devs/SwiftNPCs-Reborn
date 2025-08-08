@@ -1,4 +1,5 @@
-﻿using LabApi.Features.Wrappers;
+﻿using InventorySystem.Items;
+using LabApi.Features.Wrappers;
 using PlayerRoles.FirstPersonControl;
 using SwiftNPCs.Features.Components;
 using SwiftNPCs.Utils.Extensions;
@@ -76,7 +77,15 @@ namespace SwiftNPCs.Features.Personalities
                 return;
             }
 
-            followUpdate.Tick(Time.fixedDeltaTime);
+            if (FollowTarget.CurrentItem != null 
+                && (FollowTarget.CurrentItem.Category == ItemCategory.SpecialWeapon
+                || FollowTarget.CurrentItem.Category == ItemCategory.Firearm)
+                && GetWeapon(out ItemBase item, out _))
+                Core.Inventory.EquipItem(item);
+            else if (IsCivilian)
+                Core.Inventory.UnequipItem();
+
+                followUpdate.Tick(Time.fixedDeltaTime);
 
             if (FollowTarget.RoleBase is IFpcRole role)
                 Core.Motor.MoveState = (CurrentData.FollowTarget.Position - Core.Position).sqrMagnitude < SprintRange * SprintRange ? role.FpcModule.CurrentMovementState : PlayerMovementState.Sprinting;

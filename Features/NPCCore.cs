@@ -52,7 +52,7 @@ namespace SwiftNPCs.Features
 
         protected virtual void Update()
         {
-            if (!Initialized)
+            if (!Initialized && !NPC.Disposed)
                 return;
 
             foreach (NPCComponent component in Components)
@@ -61,7 +61,7 @@ namespace SwiftNPCs.Features
 
         protected virtual void FixedUpdate()
         {
-            if (!Initialized)
+            if (!Initialized && !NPC.Disposed)
                 return;
 
             foreach (NPCComponent component in Components)

@@ -82,6 +82,7 @@ namespace SwiftNPCs.Features.Components
 
         public void EquipItem(ItemBase item) => EquipItem(item.ItemSerial);
         public void EquipItem(ushort itemSerial) => Inventory.ServerSelectItem(itemSerial);
+
         public void UnequipItem() => EquipItem(0);
 
         #endregion

@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using Utf8Json;
-using Logger = LabApi.Features.Console.Logger;
 
 namespace SwiftNPCs.NavGeometry
 {
@@ -69,7 +68,8 @@ namespace SwiftNPCs.NavGeometry
         public static void RemoveBlockouts()
         {
             foreach (PrimitiveObjectToy toy in TemporaryBlockouts)
-                toy.Destroy();
+                if (toy != null && !toy.IsDestroyed)
+                    toy.Destroy();
         }
 
         public static void BlockoutConnectorMeshes(SpawnableRoomConnector connector, params string[] bannedKeywords)
@@ -90,7 +90,7 @@ namespace SwiftNPCs.NavGeometry
 
                 foreach (MeshCollider go in conn.GetComponentsInChildren<MeshCollider>())
                 {
-                    Logger.Info(go.name);
+                    //Logger.Info(go.name);
                     if (go.name.Contains("Doorframe"))
                     {
                         PrimitiveObjectToy t = SpawnPrim(PrimitiveType.Cube, go.transform.position + go.transform.right * 1.6f + Vector3.up, conn.transform.rotation, new(1.8f, 4f, 0.4f));
@@ -189,7 +189,7 @@ namespace SwiftNPCs.NavGeometry
 
             NavGeometry.Add(room, prims);
 
-            Logger.Info("Loaded NavGeometry: " + room.GameObject.name);
+            //Logger.Info("Loaded NavGeometry: " + room.GameObject.name);
         }
 
         public static void LoadNavGeometry()
