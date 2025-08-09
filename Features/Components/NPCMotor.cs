@@ -47,7 +47,7 @@ namespace SwiftNPCs.Features.Components
 
         public bool CanOpenDoors = true;
 
-        Vector3 lookVel;
+        Vector2 lookVel;
 
         public override void Begin()
         {
@@ -100,7 +100,7 @@ namespace SwiftNPCs.Features.Components
 
         public virtual void Look()
         {
-            CurrentLookRotation = CurrentLookRotation.SmoothDamp(WishLookRotation, ref lookVel, MaxLookTime);
+            CurrentLookRotation = CurrentLookRotation.SmoothDampNoZ(WishLookRotation, ref lookVel, MaxLookTime, Time.fixedDeltaTime);
             MouseLook.LookAtDirection(CurrentLookRotation * Vector3.forward);
         }
     }
