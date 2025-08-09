@@ -12,6 +12,8 @@ namespace SwiftNPCs.Features.Personalities
 
         public Player WrapperPlayer => Core.NPC.WrapperPlayer;
 
+        public float DeltaTime => Core.DeltaTime;
+
         public virtual bool IsMilitant => Role.GetTeam() == Team.FoundationForces || Role.GetTeam() == Team.ChaosInsurgency;
         public virtual bool IsCivilian => Role.GetTeam() == Team.ClassD || Role.GetTeam() == Team.Scientists;
         public virtual bool IsArmed => Core.Inventory.CurrentItem != null && (Core.Inventory.CurrentItem.Category == ItemCategory.Firearm || Core.Inventory.CurrentItem.Category == ItemCategory.SpecialWeapon || Core.Inventory.CurrentItem.Category == ItemCategory.Grenade);
@@ -35,8 +37,8 @@ namespace SwiftNPCs.Features.Personalities
             || Core.Inventory.HasItem(ItemCategory.SCPItem, out item, out slot)
             && item.ItemTypeId == ItemType.SCP500;
 
-            item = null; 
-            slot = 0; 
+            item = null;
+            slot = 0;
             return false;
         }
 

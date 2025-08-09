@@ -15,6 +15,8 @@ namespace SwiftNPCs.Features.ItemBehaviors
         public NPCItemUser User { get; set; }
         public ItemBase Item { get; set; }
 
+        public float DeltaTime => User.DeltaTime;
+
         public static readonly Dictionary<ItemType, List<Type>> CorrespondingItemBehaviors = [];
 
         static ItemBehaviorBase()

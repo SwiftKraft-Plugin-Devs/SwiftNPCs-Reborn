@@ -1,7 +1,6 @@
 ﻿using LabApi.Features.Wrappers;
 using SwiftNPCs.Utils.Extensions;
 using SwiftNPCs.Utils.Structures;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -54,41 +53,14 @@ namespace SwiftNPCs.Features.Personalities
             }
         }
 
-        private void LookAround()
-        {
-            lookTimer.Tick(Time.fixedDeltaTime);
-
-            if (lookTimer.Ended)
-            {
-                Core.Pathfinder.LookAtWaypoint = false;
-                Vector3 dir;
-                if (Random.Range(0f, 1f) < 0.5f && Core.Scanner.TryGetFriendlies(out List<Player> players))
-                {
-                    Player p = players.GetRandom();
-                    dir = p.Position - Core.NPC.WrapperPlayer.Camera.position;
-                }
-                else
-                {
-                    Vector2 rand = Random.insideUnitCircle;
-                    dir = new(rand.x, 0f, rand.y);
-
-                    if (dir.sqrMagnitude == 0f)
-                        dir = Vector3.one * (Random.Range(0, 1f) < 0.5f ? -1f : 1f);
-                }
-
-                Core.Motor.WishLookDirection = dir;
-                lookTimer.Reset(Random.Range(MinLookTimer, MaxLookTimer));
-            }
-        }
-
         protected virtual void WanderLoop()
         {
-            wanderTimer.Tick(Time.fixedDeltaTime);
+            wanderTimer.Tick(DeltaTime);
 
             if (Core.HasTarget || !Core.Pathfinder.IsAtDestination && !wanderTimer.Ended)
                 return;
 
-            waitTimer.Tick(Time.fixedDeltaTime);
+            waitTimer.Tick(DeltaTime);
 
             if (!Core.Pathfinder.IsAtDestination)
                 Core.Pathfinder.Stop();
@@ -96,7 +68,7 @@ namespace SwiftNPCs.Features.Personalities
             if (waitTimer.Ended)
                 SelectRoom();
             else
-                LookAround();
+                Core.LookAround(lookTimer, MinLookTimer, MaxLookTimer);
         }
     }
 }

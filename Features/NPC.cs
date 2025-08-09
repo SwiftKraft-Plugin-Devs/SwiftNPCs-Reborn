@@ -1,4 +1,5 @@
-﻿using LabApi.Events.Arguments.PlayerEvents;
+﻿using InventorySystem.Items.Firearms.Attachments;
+using LabApi.Events.Arguments.PlayerEvents;
 using LabApi.Events.Handlers;
 using LabApi.Features.Wrappers;
 using MapGeneration;
@@ -13,6 +14,18 @@ namespace SwiftNPCs.Features
 {
     public class NPC
     {
+        public static ItemType[] AttachmentTypes = [
+            ItemType.GunAK,
+            ItemType.GunCOM15,
+            ItemType.GunRevolver,
+            ItemType.GunFSP9,
+            ItemType.GunCOM18,
+            ItemType.GunLogicer,
+            ItemType.GunCrossvec,
+            ItemType.GunE11SR,
+            ItemType.GunFRMG0,
+            ItemType.GunShotgun
+            ];
         public const string DefaultName = "Bot";
         public NPCCore Core { get; private set; }
         public ReferenceHub ReferenceHub { get; private set; }
@@ -47,13 +60,16 @@ namespace SwiftNPCs.Features
         {
             ReferenceHub refHub = DummyUtils.SpawnDummy(name);
             ReferenceHub = refHub;
-            NPCManager.AllNPCs.Add(this);
+            NPCManager.Add(this);
             PlayerEvents.Death += OnDeath;
             PlayerEvents.Left += OnLeft;
             Core = refHub.gameObject.AddComponent<NPCCore>();
             Core.Setup(this);
             Timing.CallDelayed(0.05f, () =>
             {
+                foreach (ItemType item in AttachmentTypes)
+                    AttachmentsServerHandler.ServerApplyPreference(ReferenceHub, item, AttachmentsUtils.GetRandomAttachmentsCode(item));
+
                 ReferenceHub.roleManager.ServerSetRole(role, RoleChangeReason.LateJoin, spawnFlags);
                 Core.Position = position;
                 Core.SetupComponents();
@@ -66,6 +82,7 @@ namespace SwiftNPCs.Features
             PlayerEvents.Death -= OnDeath;
             PlayerEvents.Left -= OnLeft;
             NPCManager.AllNPCs.Remove(this);
+            NPCManager.UpdateDeltaTime();
             if (ReferenceHub != null)
                 NetworkServer.Destroy(ReferenceHub.gameObject);
         }

@@ -1,7 +1,9 @@
-﻿using LabApi.Events.Arguments.PlayerEvents;
+﻿using InventorySystem.Items.Firearms.Attachments;
+using LabApi.Events.Arguments.PlayerEvents;
 using LabApi.Events.Arguments.ServerEvents;
 using LabApi.Events.Handlers;
 using LabApi.Features;
+using LabApi.Features.Wrappers;
 using LabApi.Loader.Features.Plugins;
 using LabApi.Loader.Features.Plugins.Enums;
 using MEC;
@@ -53,6 +55,8 @@ namespace SwiftNPCs
             NavGeometryEditor.RegisterEditMode<Delete>();
             NavGeometryEditor.RegisterEditMode<NavGeometry.EditModes.Rotate>();
             NavGeometryEditor.RegisterEditMode<Move>();
+
+            StaticUnityMethods.OnFixedUpdate += NPCManager.Tick;
 
             //HarmonyManager.Enable();
         }
@@ -113,6 +117,8 @@ namespace SwiftNPCs
             NPCManager.RemoveAll();
             ServerEvents.MapGenerated -= MapGenerated;
             //PlayerEvents.ShotWeapon -= OnPlayerShotWeapon;
+
+            StaticUnityMethods.OnFixedUpdate -= NPCManager.Tick;
 
             NavGeometryEditor.Disable();
 

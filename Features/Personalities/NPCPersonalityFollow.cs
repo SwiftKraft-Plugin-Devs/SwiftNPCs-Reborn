@@ -77,7 +77,7 @@ namespace SwiftNPCs.Features.Personalities
                 return;
             }
 
-            if (FollowTarget.CurrentItem != null 
+            if (FollowTarget.CurrentItem != null
                 && (FollowTarget.CurrentItem.Category == ItemCategory.SpecialWeapon
                 || FollowTarget.CurrentItem.Category == ItemCategory.Firearm)
                 && GetWeapon(out ItemBase item, out _))
@@ -85,7 +85,7 @@ namespace SwiftNPCs.Features.Personalities
             else if (IsCivilian)
                 Core.Inventory.UnequipItem();
 
-                followUpdate.Tick(Time.fixedDeltaTime);
+            followUpdate.Tick(DeltaTime);
 
             if (FollowTarget.RoleBase is IFpcRole role)
                 Core.Motor.MoveState = (CurrentData.FollowTarget.Position - Core.Position).sqrMagnitude < SprintRange * SprintRange ? role.FpcModule.CurrentMovementState : PlayerMovementState.Sprinting;
@@ -95,32 +95,12 @@ namespace SwiftNPCs.Features.Personalities
             if (targetInElevator)
                 CurrentFollowRange = 0.75f;
 
-            if (InFollowRange && (!targetInElevator || (Core.NPC.WrapperPlayer.TryGetElevator(out Elevator thisElev) && thisElev == elev)))
+            if (InFollowRange && (!targetInElevator || (WrapperPlayer.TryGetElevator(out Elevator thisElev) && thisElev == elev)))
             {
                 Core.Pathfinder.Stop();
                 Core.Pathfinder.LookAtWaypoint = false;
                 CurrentFollowRange = Random.Range(MinFollowRange, MaxFollowRange);
-
-                lookTimer.Tick(Time.fixedDeltaTime);
-
-                if (lookTimer.Ended)
-                {
-                    lookTimer.Reset(Random.Range(MinLookTimer, MaxLookTimer));
-                    Vector3 dir;
-                    if (Random.Range(0f, 1f) < 0.75f && Core.Scanner.TryGetFriendlies(out List<Player> players))
-                    {
-                        Player p = players.GetRandom();
-                        dir = p.Position - Core.NPC.WrapperPlayer.Camera.position;
-                    }
-                    else
-                    {
-                        dir = Random.insideUnitSphere;
-                        dir.y = 0f;
-                    }
-
-                    Core.Motor.WishLookDirection = dir;
-                }
-
+                Core.LookAround(lookTimer, MinLookTimer, MaxLookTimer);
                 return;
             }
 

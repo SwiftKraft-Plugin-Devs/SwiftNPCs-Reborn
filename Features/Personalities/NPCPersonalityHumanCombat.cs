@@ -56,7 +56,7 @@ namespace SwiftNPCs.Features.Personalities
             if (Core.CanAttackTarget)
             {
                 chasing = false;
-                strafeTimer.Tick(Time.fixedDeltaTime);
+                strafeTimer.Tick(DeltaTime);
                 if (strafeTimer.Ended)
                 {
                     strafeTimer.Reset(Random.Range(StrafeTimeMin, StrafeTimeMax));

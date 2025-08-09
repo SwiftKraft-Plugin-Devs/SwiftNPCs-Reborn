@@ -37,6 +37,8 @@ namespace SwiftNPCs.Features.Components
         public Vector3 RequestedForce { get; set; }
         public float RequestDecayRate => Motor.MoveSpeed;
 
+        public bool IsStuck { get; private set; }
+
         Vector3 _destination;
         Vector3 _realDestination;
 
@@ -78,7 +80,7 @@ namespace SwiftNPCs.Features.Components
 
         public void StuckCheck()
         {
-            stuckTimer.Tick(Time.fixedDeltaTime);
+            stuckTimer.Tick(DeltaTime);
 
             if (stuckTimer.Ended)
             {
@@ -89,13 +91,17 @@ namespace SwiftNPCs.Features.Components
                     stuckCounter++;
                     if (stuckCounter > maxStuckCounter)
                     {
+                        IsStuck = true;
                         OnStuck?.Invoke();
                         stuckCounter = 0;
                         StuckAction();
                     }
                 }
                 else
+                {
                     stuckCounter = 0;
+                    IsStuck = false;
+                }
 
                 lastCheckPos = Core.Position;
             }
@@ -113,23 +119,21 @@ namespace SwiftNPCs.Features.Components
             //Destination = Player.Get(2).Position;
 
             IsAtDestination = (Destination - Core.Position).sqrMagnitude <= DestinationRange * DestinationRange;
-            RequestedForce = Vector3.MoveTowards(RequestedForce, Vector3.zero, RequestDecayRate * Time.fixedDeltaTime);
+            RequestedForce = Vector3.MoveTowards(RequestedForce, Vector3.zero, RequestDecayRate * DeltaTime);
 
             if (IsAtDestination)
             {
-                if (RealDestination != Core.Position)
-                {
-                    Destination = Core.Position;
-                    Motor.WishMoveDirection = RequestedForce;
-                }
+                IsStuck = false;
+                Destination = Core.Position;
+                Motor.WishMoveDirection = RequestedForce;
                 return;
             }
 
-            unstuckTimer.Tick(Time.fixedDeltaTime);
+            unstuckTimer.Tick(DeltaTime);
 
             if (unstuckTimer.Ended)
             {
-                repathTimer -= Time.fixedDeltaTime;
+                repathTimer -= DeltaTime;
                 if (repathTimer <= 0f)
                 {
                     Path.UpdatePath();
@@ -174,7 +178,7 @@ namespace SwiftNPCs.Features.Components
                     float dist = Mathf.Sqrt(sqrDist);
                     Vector3 repulsion = offset / (dist * dist);
                     avoidance += repulsion;
-                    npc.Core.Pathfinder.RequestedForce -= repulsion * 0.5f;
+                    npc.Core.Pathfinder.RequestedForce -= repulsion;
                 }
             }
 

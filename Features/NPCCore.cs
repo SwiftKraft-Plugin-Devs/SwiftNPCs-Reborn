@@ -27,6 +27,8 @@ namespace SwiftNPCs.Features
 
         public Vector3 Position { get => NPC.Position; set => NPC.Position = value; }
 
+        public float DeltaTime => NPCManager.DeltaTime;
+
         public TargetableBase Target
         {
             get
@@ -59,7 +61,7 @@ namespace SwiftNPCs.Features
                 component.Frame();
         }
 
-        protected virtual void FixedUpdate()
+        public virtual void Tick()
         {
             if (!Initialized && !NPC.Disposed)
                 return;

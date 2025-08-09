@@ -97,11 +97,11 @@ namespace SwiftNPCs.Features.ItemBehaviors
                         if (!sprayCooldownTimer.Ended)
                         {
                             Attacking = false;
-                            sprayCooldownTimer.Tick(Time.fixedDeltaTime);
+                            sprayCooldownTimer.Tick(DeltaTime);
                         }
                         else
                         {
-                            sprayTimer.Tick(Time.fixedDeltaTime);
+                            sprayTimer.Tick(DeltaTime);
 
                             if (sprayTimer.Ended)
                             {
@@ -124,7 +124,7 @@ namespace SwiftNPCs.Features.ItemBehaviors
 
                 if (Ammo.AmmoStored < Ammo.AmmoMax)
                 {
-                    tacticalReloadTimer.Tick(Time.fixedDeltaTime);
+                    tacticalReloadTimer.Tick(DeltaTime);
 
                     if (tacticalReloadTimer.Ended)
                     {

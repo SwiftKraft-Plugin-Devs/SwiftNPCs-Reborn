@@ -35,7 +35,7 @@ namespace SwiftNPCs.Features.Components
 
         public override void Tick()
         {
-            timer.Tick(Time.fixedDeltaTime);
+            timer.Tick(DeltaTime);
             if (timer.Ended)
             {
                 timer.Reset();

@@ -31,7 +31,7 @@ namespace SwiftNPCs.Features.Personalities
 
             Core.Motor.MoveState = Core.HasTarget && (!IsArmed || !IsThreat) ? PlayerRoles.FirstPersonControl.PlayerMovementState.Sprinting : PlayerRoles.FirstPersonControl.PlayerMovementState.Walking;
 
-            if (IsCivilian && !IsArmed && Core.Scanner.TryGetFriendlies(out List<Player> players))
+            if (IsCivilian && !WrapperPlayer.IsDisarmed && !IsArmed && Core.Scanner.TryGetFriendlies(out List<Player> players))
             {
                 Player p = players.FirstOrDefault((p) => p.Faction == WrapperPlayer.Faction && (p.Team == PlayerRoles.Team.FoundationForces || p.Team == PlayerRoles.Team.ChaosInsurgency));
                 if (p != null)

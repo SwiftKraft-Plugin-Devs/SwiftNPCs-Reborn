@@ -92,7 +92,7 @@ namespace SwiftNPCs.Features.Components
 
         public virtual void Move()
         {
-            Motor.ReceivedPosition = new RelativePosition(Core.Position + WishMoveDirection * (MoveSpeed * Time.fixedDeltaTime));
+            Motor.ReceivedPosition = new RelativePosition(Core.Position + WishMoveDirection * (MoveSpeed * DeltaTime));
 
             if (CanOpenDoors && WishMoveDirection != Vector3.zero && Core.TryGetDoor(out DoorVariant door, out bool inVision) && inVision && Vector3.Angle(door.transform.position - Core.Position, WishMoveDirection) <= 45f)
                 Core.TrySetDoor(door, true);
@@ -100,7 +100,7 @@ namespace SwiftNPCs.Features.Components
 
         public virtual void Look()
         {
-            CurrentLookRotation = CurrentLookRotation.SmoothDampNoZ(WishLookRotation, ref lookVel, MaxLookTime, Time.fixedDeltaTime);
+            CurrentLookRotation = CurrentLookRotation.SmoothDampNoZ(WishLookRotation, ref lookVel, MaxLookTime, DeltaTime);
             MouseLook.LookAtDirection(CurrentLookRotation * Vector3.forward);
         }
     }
