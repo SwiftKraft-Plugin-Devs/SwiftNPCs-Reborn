@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.AI;
 using Utf8Json;
 
 namespace SwiftNPCs.NavGeometry
@@ -48,11 +49,69 @@ namespace SwiftNPCs.NavGeometry
             }
         }
 
+        public struct SavedLink
+        {
+            public Vector3 Position1;
+            public Vector3 Position2;
+            public bool Bidirectional;
+
+            public static NavMeshLink Spawn(Room r, SavedLink link)
+            {
+                Transform t = r.Transform; // assuming Room has a Transform
+                Vector3 worldPosition1 = t.TransformPoint(link.Position1);
+                Vector3 worldPosition2 = t.TransformPoint(link.Position2);
+
+                NavMeshLink l = new GameObject("NavMeshLink").AddComponent<NavMeshLink>();
+                l.bidirectional = link.Bidirectional;
+                l.startPoint = worldPosition1;
+                l.endPoint = worldPosition2;
+                return l;
+            }
+
+            public static SavedLink Convert(Room r, NavMeshLink link)
+            {
+                Transform t = r.Transform; // assuming Room has a Transform
+                return new SavedLink
+                {
+                    Position1 = t.InverseTransformPoint(link.startPoint),
+                    Position2 = t.InverseTransformPoint(link.endPoint),
+                    Bidirectional = link.bidirectional
+                };
+            }
+        }
+
+        public struct SavedPoint
+        {
+            public Vector3 Position;
+            public string Tag;
+
+            public static Transform Spawn(Room r, SavedPoint point)
+            {
+                Transform t = r.Transform; // assuming Room has a Transform
+                Vector3 worldPosition = t.TransformPoint(point.Position);
+
+                Transform l = new GameObject("NavMeshLink").transform;
+                l.position = worldPosition;
+                return l;
+            }
+
+            public static SavedPoint Convert(Room r, Transform link)
+            {
+                Transform t = r.Transform; // assuming Room has a Transform
+                return new SavedPoint
+                {
+                    Position = t.InverseTransformPoint(link.position),
+                };
+            }
+        }
+
         public struct SavedRoom
         {
             public string Name;
 
             public SavedPrimitive[] Primitives;
+            public SavedLink[] Links;
+            public SavedPoint[] Points;
 
             public static implicit operator SavedRoom(Room room) => new() { Name = room.GameObject.name, Primitives = NavGeometry.ContainsKey(room) ? [.. Convert(room, NavGeometry[room])] : null };
         }

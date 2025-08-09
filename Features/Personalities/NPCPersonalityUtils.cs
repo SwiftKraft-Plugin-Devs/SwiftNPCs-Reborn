@@ -16,6 +16,7 @@ namespace SwiftNPCs.Features.Personalities
             if (lookTimer.Ended)
             {
                 core.Pathfinder.LookAtWaypoint = false;
+
                 Vector3 dir;
                 if (Random.Range(0f, 1f) < 0.5f && core.Scanner.TryGetFriendlies(out List<Player> players))
                 {
