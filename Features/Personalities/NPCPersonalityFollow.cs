@@ -4,7 +4,6 @@ using PlayerRoles.FirstPersonControl;
 using SwiftNPCs.Features.Components;
 using SwiftNPCs.Utils.Extensions;
 using SwiftNPCs.Utils.Structures;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace SwiftNPCs.Features.Personalities
@@ -70,12 +69,7 @@ namespace SwiftNPCs.Features.Personalities
             if (!HasFollowTarget)
                 return;
 
-            if (!FollowTarget.IsAlive || FollowTarget.IsEnemy(WrapperPlayer))
-            {
-                FollowTarget = null;
-                Core.SetPersonality(new NPCPersonalityWanderHuman());
-                return;
-            }
+            CheckFollowTarget();
 
             if (FollowTarget.CurrentItem != null
                 && (FollowTarget.CurrentItem.Category == ItemCategory.SpecialWeapon
@@ -114,9 +108,24 @@ namespace SwiftNPCs.Features.Personalities
                 UpdateDestination();
         }
 
-        public override void Begin() { }
+        public override void Begin()
+        {
+            if (!HasFollowTarget)
+                return;
+
+            CheckFollowTarget();
+        }
 
         public override void End() => Core.Pathfinder.OnStuck -= OnStuck;
+
+        private void CheckFollowTarget()
+        {
+            if (FollowTarget.IsAlive && !FollowTarget.IsEnemy(WrapperPlayer))
+                return;
+
+            FollowTarget = null;
+            Core.SetPersonality(new NPCPersonalityWanderHuman());
+        }
 
         private void OnStuck() => Core.Motor.WishJump = true;
 

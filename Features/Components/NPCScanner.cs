@@ -75,9 +75,9 @@ namespace SwiftNPCs.Features.Components
                     Core.Target = new TargetablePlayer(player);
         }
 
-        public bool HasLOS(Player player, out Vector3 sight, bool collision = false) => CheckLOS(Core.NPC.WrapperPlayer.Camera.position, out sight, collision, player.Camera.position, player.Position);
+        public bool HasLOS(Player player, out Vector3 sight, bool collision = false) => CheckLOS(Core.NPC.WrapperPlayer.Camera.position, out sight, collision, player.Position, player.Camera.position);
 
-        public bool HasLOS(TargetableBase t, out Vector3 sight, bool collision = false) => CheckLOS(Core.NPC.WrapperPlayer.Camera.position, out sight, collision, t.CriticalPosition, t.HitPosition);
+        public bool HasLOS(TargetableBase t, out Vector3 sight, bool collision = false) => CheckLOS(Core.NPC.WrapperPlayer.Camera.position, out sight, collision, t.HitPosition, t.CriticalPosition);
 
         public static bool CheckLOS(Vector3 cam, out Vector3 sight, bool collision = false, params Vector3[] others)
         {
