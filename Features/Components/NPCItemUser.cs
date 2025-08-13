@@ -1,5 +1,6 @@
 ﻿using LabApi.Events.Arguments.PlayerEvents;
 using LabApi.Events.Handlers;
+using LabApi.Features.Wrappers;
 using SwiftNPCs.Features.ItemBehaviors;
 
 namespace SwiftNPCs.Features.Components
@@ -20,7 +21,11 @@ namespace SwiftNPCs.Features.Components
 
         public bool CanUse = true;
 
-        public override void Begin() => PlayerEvents.ChangedItem += ChangedItem;
+        public override void Begin()
+        {
+            PlayerEvents.ChangedItem += ChangedItem;
+            CurrentItemBehavior = this.GetRandomBehavior(Core.Inventory.CurrentItem);
+        }
 
         public override void Tick()
         {
@@ -39,7 +44,7 @@ namespace SwiftNPCs.Features.Components
             if (ev.Player != Core.NPC.WrapperPlayer)
                 return;
 
-            CurrentItemBehavior = ev.NewItem == null ? null : this.GetRandomBehavior(ev.NewItem);
+            CurrentItemBehavior = this.GetRandomBehavior(ev.NewItem);
         }
     }
 }
