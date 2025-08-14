@@ -1,6 +1,7 @@
 ﻿using Interactables.Interobjects;
 using Interactables.Interobjects.DoorUtils;
 using MEC;
+using PlayerRoles.FirstPersonControl.Thirdperson.Subcontrollers;
 using SwiftNPCs.Features.Components;
 using SwiftNPCs.Features.Personalities;
 using SwiftNPCs.Features.Targettables;
@@ -46,6 +47,7 @@ namespace SwiftNPCs.Features
         public NPCItemUser ItemUser { get; private set; }
         public NPCScanner Scanner { get; private set; }
         public NPCInventory Inventory { get; private set; }
+        public NPCEmotionController Emotion { get; private set; }
 
         public bool HasTarget => Target != null;
         public bool CanAttackTarget => HasTarget && Scanner.HasLOS(Target, out _, true);
@@ -115,6 +117,7 @@ namespace SwiftNPCs.Features
             Pathfinder = AddNPCComponent<NPCPathfinder>();
             ItemUser = AddNPCComponent<NPCItemUser>();
             Scanner = AddNPCComponent<NPCScanner>();
+            Emotion = AddNPCComponent<NPCEmotionController>();
 
             Initialized = true;
         }
