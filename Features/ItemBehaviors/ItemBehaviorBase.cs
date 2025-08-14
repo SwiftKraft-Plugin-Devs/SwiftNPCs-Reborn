@@ -57,7 +57,12 @@ namespace SwiftNPCs.Features.ItemBehaviors
     {
         public static ItemBehaviorBase GetRandomBehavior(this NPCItemUser user, ItemBase item)
         {
-            if (user == null || item == null || !ItemBehaviorBase.CorrespondingItemBehaviors.TryGetValue(item.ItemTypeId, out List<Type> types))
+            ItemType itemType = ItemType.None;
+
+            if (item != null)
+                itemType = item.ItemTypeId;
+
+            if (user == null || !ItemBehaviorBase.CorrespondingItemBehaviors.TryGetValue(itemType, out List<Type> types))
                 return null;
 
             ItemBehaviorBase bb = (ItemBehaviorBase)Activator.CreateInstance(types[Random.Range(0, types.Count)]);
