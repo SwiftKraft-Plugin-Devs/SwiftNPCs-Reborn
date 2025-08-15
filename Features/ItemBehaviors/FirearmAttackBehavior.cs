@@ -12,7 +12,7 @@ namespace SwiftNPCs.Features.ItemBehaviors
 
         public bool CanShoot = true;
 
-        public bool Attacking
+        public virtual bool Attacking
         {
             get => attacking;
             set
@@ -28,7 +28,7 @@ namespace SwiftNPCs.Features.ItemBehaviors
             }
         }
 
-        public bool Aiming
+        public virtual bool Aiming
         {
             get => aiming;
             set
@@ -59,13 +59,14 @@ namespace SwiftNPCs.Features.ItemBehaviors
 
         public float ShootDotProduct = 0.75f;
 
-        private readonly Timer tacticalReloadTimer = new(4f);
-        private readonly Timer sprayTimer = new(2.5f);
-        private readonly Timer sprayCooldownTimer = new(1f);
-        private bool attacking;
-        private bool aiming;
+        protected readonly Timer tacticalReloadTimer = new(4f);
+        protected readonly Timer sprayTimer = new(2.5f);
+        protected readonly Timer sprayCooldownTimer = new(1f);
 
-        private Vector3 offset;
+        protected bool attacking;
+        protected bool aiming;
+
+        protected Vector3 offset;
 
         public override void Begin()
         {
