@@ -5,6 +5,7 @@ using SwiftNPCs.Features.Components;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using UnityEngine;
 using Logger = LabApi.Features.Console.Logger;
 using Random = UnityEngine.Random;
 
@@ -55,6 +56,25 @@ namespace SwiftNPCs.Features.ItemBehaviors
 
     public static class ItemBehaviorExtensions
     {
+        public static T CreateBehavior<T>(this NPCItemUser user, ItemBase item) where T : ItemBehaviorBase, new() => user == null
+                ? null
+                : new()
+                {
+                    Item = item,
+                    User = user
+                };
+
+        public static ItemBehaviorBase CreateBehavior(this NPCItemUser user, ItemBase item, Type type)
+        {
+            if (type.IsAbstract || !type.IsAssignableFrom(typeof(ItemBehaviorBase)) || user == null)
+                return null;
+
+            ItemBehaviorBase bb = (ItemBehaviorBase)Activator.CreateInstance(type);
+            bb.Item = item;
+            bb.User = user;
+            return bb;
+        }
+
         public static ItemBehaviorBase GetRandomBehavior(this NPCItemUser user, ItemBase item)
         {
             ItemType itemType = ItemType.None;
@@ -65,10 +85,7 @@ namespace SwiftNPCs.Features.ItemBehaviors
             if (user == null || !ItemBehaviorBase.CorrespondingItemBehaviors.TryGetValue(itemType, out List<Type> types))
                 return null;
 
-            ItemBehaviorBase bb = (ItemBehaviorBase)Activator.CreateInstance(types[Random.Range(0, types.Count)]);
-            bb.Item = item;
-            bb.User = user;
-            return bb;
+            return user.CreateBehavior(item, types[Random.Range(0, types.Count)]);
         }
 
         public static ItemBehaviorBase GetRandomBehavior(this NPCItemUser user, Item item) => item == null ? null : user.GetRandomBehavior(item.Base);

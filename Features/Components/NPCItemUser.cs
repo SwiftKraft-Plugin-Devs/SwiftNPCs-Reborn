@@ -1,6 +1,5 @@
 ﻿using LabApi.Events.Arguments.PlayerEvents;
 using LabApi.Events.Handlers;
-using LabApi.Features.Wrappers;
 using SwiftNPCs.Features.ItemBehaviors;
 
 namespace SwiftNPCs.Features.Components
@@ -20,6 +19,7 @@ namespace SwiftNPCs.Features.Components
         ItemBehaviorBase _currentItemBehavior;
 
         public bool CanUse = true;
+        public bool UseRandomBehaviors = true;
 
         public override void Begin()
         {
@@ -44,7 +44,8 @@ namespace SwiftNPCs.Features.Components
             if (ev.Player != Core.NPC.WrapperPlayer)
                 return;
 
-            CurrentItemBehavior = this.GetRandomBehavior(ev.NewItem);
+            if (UseRandomBehaviors)
+                CurrentItemBehavior = this.GetRandomBehavior(ev.NewItem);
         }
     }
 }
