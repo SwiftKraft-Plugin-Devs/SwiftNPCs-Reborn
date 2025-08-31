@@ -137,19 +137,11 @@ namespace SwiftNPCs.Features
                 return;
             }
 
-            if (Initialized)
-                transition();
-            else
-                Timing.CallDelayed(0.1f, transition);
-
-            void transition()
-            {
-                personality.Init(this);
-                CurrentPersonality?.End();
-                PreviousPersonality = CurrentPersonality;
-                CurrentPersonality = personality;
-                personality.Begin();
-            }
+            personality.Init(this);
+            CurrentPersonality?.End();
+            PreviousPersonality = CurrentPersonality;
+            CurrentPersonality = personality;
+            personality.Begin();
         }
 
         public T SetPersonality<T>() where T : NPCPersonalityBase, new()

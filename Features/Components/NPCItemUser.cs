@@ -44,8 +44,7 @@ namespace SwiftNPCs.Features.Components
             if (ev.Player != Core.NPC.WrapperPlayer)
                 return;
 
-            if (UseRandomBehaviors)
-                CurrentItemBehavior = this.GetRandomBehavior(ev.NewItem);
+            CurrentItemBehavior = this.GetRandomBehavior(ev.NewItem);
         }
     }
 }

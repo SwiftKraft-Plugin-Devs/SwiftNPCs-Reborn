@@ -1,5 +1,6 @@
 ﻿using InventorySystem.Items;
 using LabApi.Events.Handlers;
+using LabApi.Features.Console;
 using LabApi.Features.Wrappers;
 using SwiftNPCs.Features.Targettables;
 using System.Collections.Generic;
@@ -68,7 +69,7 @@ namespace SwiftNPCs.Features.Personalities
 
         private void OnSendingVoiceMessage(LabApi.Events.Arguments.PlayerEvents.PlayerSendingVoiceMessageEventArgs ev)
         {
-            if (!ev.Player.IsAlive || ev.Player.Faction != WrapperPlayer.Faction || (ev.Player.Position - Core.Position).sqrMagnitude >= 100f)
+            if (ev.Player == null || !ev.Player.IsAlive || ev.Player.Faction != WrapperPlayer.Faction || (ev.Player.Position - Core.Position).sqrMagnitude >= 100f)
                 return;
 
             StartFollow(ev.Player);

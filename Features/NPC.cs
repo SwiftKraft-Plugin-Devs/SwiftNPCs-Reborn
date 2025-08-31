@@ -65,7 +65,7 @@ namespace SwiftNPCs.Features
             PlayerEvents.Left += OnLeft;
             Core = refHub.gameObject.AddComponent<NPCCore>();
             Core.Setup(this);
-            Timing.CallDelayed(0.05f, () =>
+            Timing.CallDelayed(0.1f, () =>
             {
                 foreach (ItemType item in AttachmentTypes)
                     AttachmentsServerHandler.ServerApplyPreference(ReferenceHub, item, AttachmentsUtils.GetRandomAttachmentsCode(item));

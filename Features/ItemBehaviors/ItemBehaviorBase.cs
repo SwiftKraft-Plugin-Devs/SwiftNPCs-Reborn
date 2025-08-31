@@ -1,11 +1,9 @@
 ﻿using InventorySystem.Items;
 using LabApi.Features.Wrappers;
-using Scp914.Processors;
 using SwiftNPCs.Features.Components;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using UnityEngine;
 using Logger = LabApi.Features.Console.Logger;
 using Random = UnityEngine.Random;
 
@@ -22,21 +20,20 @@ namespace SwiftNPCs.Features.ItemBehaviors
 
         static ItemBehaviorBase()
         {
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            Assembly assembly = Assembly.GetExecutingAssembly();
+
+            foreach (Type type in assembly.GetTypes())
             {
-                foreach (Type type in assembly.GetTypes())
+                var attribs = type.GetCustomAttributes(typeof(ItemBehaviorAttribute), false);
+                if (attribs != null && attribs.Length > 0)
                 {
-                    var attribs = type.GetCustomAttributes(typeof(ItemBehaviorAttribute), false);
-                    if (attribs != null && attribs.Length > 0)
+                    ItemBehaviorAttribute attr = (ItemBehaviorAttribute)attribs[0];
+                    foreach (ItemType it in attr.ItemTypes)
                     {
-                        ItemBehaviorAttribute attr = (ItemBehaviorAttribute)attribs[0];
-                        foreach (ItemType it in attr.ItemTypes)
-                        {
-                            if (!CorrespondingItemBehaviors.ContainsKey(it))
-                                CorrespondingItemBehaviors.Add(it, []);
-                            CorrespondingItemBehaviors[it].Add(type);
-                            Logger.Info($"Adding Behavior \"{type.FullName}\" to Item \"{it.GetName()}\"");
-                        }
+                        if (!CorrespondingItemBehaviors.ContainsKey(it))
+                            CorrespondingItemBehaviors.Add(it, []);
+                        CorrespondingItemBehaviors[it].Add(type);
+                        Logger.Info($"Adding Behavior \"{type.FullName}\" to Item \"{it.GetName()}\"");
                     }
                 }
             }
@@ -66,7 +63,7 @@ namespace SwiftNPCs.Features.ItemBehaviors
 
         public static ItemBehaviorBase CreateBehavior(this NPCItemUser user, ItemBase item, Type type)
         {
-            if (type.IsAbstract || !type.IsAssignableFrom(typeof(ItemBehaviorBase)) || user == null)
+            if (type.IsAbstract || user == null)
                 return null;
 
             ItemBehaviorBase bb = (ItemBehaviorBase)Activator.CreateInstance(type);

@@ -1,5 +1,6 @@
 ﻿using CommandSystem;
 using LabApi.Features.Wrappers;
+using MEC;
 using PlayerRoles;
 using SwiftNPCs.Features;
 using SwiftNPCs.Features.Personalities;
@@ -48,7 +49,7 @@ namespace SwiftNPCs.Commands
             string name = sb.ToString();
 
             NPC npc = new(p.Position, string.IsNullOrWhiteSpace(name) ? NPC.DefaultName : name, role);
-            npc.Core.SetPersonality<NPCPersonalityWanderHuman>();
+            Timing.CallDelayed(0.2f, () => npc.Core.SetPersonality<NPCPersonalityWanderHuman>());
 
             response = "Spawned " + role + " NPC at " + p.Position + " with name \"" + npc.WrapperPlayer.Nickname + "\"";
             return true;

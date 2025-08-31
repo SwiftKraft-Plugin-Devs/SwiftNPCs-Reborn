@@ -1,10 +1,12 @@
 ﻿using InventorySystem.Items;
+using LabApi.Features.Console;
 using LabApi.Features.Wrappers;
 using PlayerRoles.FirstPersonControl;
 using SwiftNPCs.Features.Components;
 using SwiftNPCs.Utils.Extensions;
 using SwiftNPCs.Utils.Structures;
 using UnityEngine;
+using Logger = LabApi.Features.Console.Logger;
 
 namespace SwiftNPCs.Features.Personalities
 {

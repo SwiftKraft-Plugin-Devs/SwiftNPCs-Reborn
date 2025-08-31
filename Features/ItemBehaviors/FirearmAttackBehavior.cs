@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace SwiftNPCs.Features.ItemBehaviors
 {
-    [ItemBehavior(ItemType.GunA7, ItemType.GunAK, ItemType.GunCom45, ItemType.GunCOM15, ItemType.GunCOM18, ItemType.GunFSP9, ItemType.GunE11SR, ItemType.GunLogicer, ItemType.GunFRMG0, ItemType.GunCrossvec, ItemType.GunRevolver, ItemType.GunSCP127)]
+    [ItemBehavior(ItemType.GunA7, ItemType.GunAK, ItemType.GunCom45, ItemType.GunCOM15, ItemType.GunCOM18, ItemType.GunFSP9, ItemType.GunE11SR, ItemType.GunLogicer, ItemType.GunFRMG0, ItemType.GunCrossvec, ItemType.GunSCP127)]
     public class FirearmAttackBehavior : FirearmBehaviorBase
     {
         public IReloaderModule Reloader { get; private set; }

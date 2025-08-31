@@ -1,9 +1,5 @@
-﻿using InventorySystem.Items.Autosync;
-using InventorySystem.Items.Firearms.Modules;
-using Mirror;
-using SwiftNPCs.Utils;
+﻿using InventorySystem.Items.Firearms.Modules;
 using SwiftNPCs.Utils.Structures;
-using System;
 
 namespace SwiftNPCs.Features.ItemBehaviors
 {
